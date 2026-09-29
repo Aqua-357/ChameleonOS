@@ -45,7 +45,7 @@ Upon launching, ChameleonOS automatically executes:
 - **Web Application:** [http://localhost:8000](http://localhost:8000)
 - **Public Project Gallery:** [http://localhost:8000/gallery](http://localhost:8000/gallery)
 - **Health Check:** [http://localhost:8000/health](http://localhost:8000/health)
-- **Organizer Normalization Lab:** [http://localhost:8000/events/ev_ai_nexus_2026/normalization](http://localhost:8000/events/ev_ai_nexus_2026/normalization)
+- **Organizer Normalization Lab:** [http://localhost:8000/events/dogfood-2026/normalization-lab](http://localhost:8000/events/dogfood-2026/normalization-lab)
 
 ---
 

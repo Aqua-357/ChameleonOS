@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Access Error &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div style="max-width: 540px; margin: 4rem auto; text-align: center;">
+  <div class="card" style="padding: 3rem 2rem;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">
+      {% if status_code == 403 %}🛡️{% elif status_code == 401 %}🔑{% elif status_code == 404 %}🔍{% else %}⚠️{% endif %}
+    </div>
+    
+    <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--accent-primary); text-transform: uppercase; margin-bottom: 0.5rem;">
+      HTTP {{ status_code }}
+    </div>
+
+    <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.75rem;">
+      {% if status_code == 403 %}
+        Access Restricted
+      {% elif status_code == 401 %}
+        Authentication Required
+      {% elif status_code == 404 %}
+        Page Not Found
+      {% else %}
+        Action Not Permitted
+      {% endif %}
+    </h1>
+
+    <p style="color: var(--text-secondary); line-height: 1.55; font-size: 0.95rem; margin-bottom: 2rem;">
+      {{ detail or "You do not have the required permissions to perform this action or view this console." }}
+    </p>
+
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+      {% if not user %}
+        <a href="/login" class="btn btn-primary">Sign In &rarr;</a>
+        <a href="/gallery" class="btn btn-secondary">Public Gallery</a>
+      {% else %}
+        <a href="/gallery" class="btn btn-primary">Return to Gallery</a>
+        <a href="/events" class="btn btn-secondary">Browse Events</a>
+        {% if user.role == 'judge' %}
+          <a href="/judging" class="btn btn-secondary">Judge Console</a>
+        {% elif user.role in ['organizer', 'admin'] %}
+          <a href="/events" class="btn btn-secondary">Organizer Control</a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

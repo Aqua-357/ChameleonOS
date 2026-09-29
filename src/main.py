@@ -84,8 +84,43 @@ async def health_check() -> Dict[str, Any]:
     }
 
 
-from src.auth.dependencies import get_optional_user
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.responses import JSONResponse
+from src.auth.dependencies import get_optional_user, extract_token_from_request
+from src.auth.service import decode_access_token
 from src.auth.models import User
+
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Handle HTTP exceptions with JSON for API routes and themed error pages for browser views."""
+    if request.url.path.startswith("/api/"):
+        headers = getattr(exc, "headers", None)
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=headers)
+
+    user = None
+    try:
+        token = extract_token_from_request(request)
+        if token:
+            payload = decode_access_token(token)
+            if payload and payload.get("sub"):
+                with SessionLocal() as db:
+                    user = db.query(User).filter(User.id == payload["sub"], User.is_active.is_(True)).first()
+    except Exception:
+        user = None
+
+    return templates.TemplateResponse(
+        request=request,
+        name="error.html",
+        context={
+            "request": request,
+            "status_code": exc.status_code,
+            "detail": exc.detail,
+            "user": user,
+            "settings": settings,
+        },
+        status_code=exc.status_code,
+    )
 
 
 @app.get("/", response_class=HTMLResponse, tags=["system"])
