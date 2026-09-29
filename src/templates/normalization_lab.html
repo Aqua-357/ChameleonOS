@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Normalization Lab &bull; {{ event.title }} &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+        <h1 class="page-title" style="margin-bottom: 0;">Cross-Judge Normalization Lab</h1>
+        <span class="role-badge role-organizer">Organizer Calibration</span>
+      </div>
+      <p class="page-subtitle">{{ event.title }} &bull; Statistical Score Harmonization & Bias Mitigation</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/events/{{ event.slug }}/results" class="btn btn-secondary">
+        &larr; Standard Results
+      </a>
+      <a href="/api/v1/normalization/events/{{ event.id }}" target="_blank" class="btn btn-secondary">
+        JSON API Feed &nearr;
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Global Benchmark Metrics -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+  <div class="card" style="padding: 1.25rem;">
+    <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono);">
+      Total Projects
+    </div>
+    <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin-top: 0.35rem;">
+      {{ lab.total_projects }}
+    </div>
+  </div>
+
+  <div class="card" style="padding: 1.25rem;">
+    <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono);">
+      Total Evaluations
+    </div>
+    <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-primary); margin-top: 0.35rem;">
+      {{ lab.total_evaluations }}
+    </div>
+  </div>
+
+  <div class="card" style="padding: 1.25rem;">
+    <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono);">
+      Global Mean (&mu;)
+    </div>
+    <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin-top: 0.35rem; font-family: var(--font-mono);">
+      {{ lab.global_mean_score }}
+    </div>
+  </div>
+
+  <div class="card" style="padding: 1.25rem;">
+    <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono);">
+      Global Std Dev (&sigma;)
+    </div>
+    <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin-top: 0.35rem; font-family: var(--font-mono);">
+      {{ lab.global_std_dev }}
+    </div>
+  </div>
+</div>
+
+<!-- Section 1: Judge Calibration & Persona Matrix -->
+<div style="margin-bottom: 2.5rem;">
+  <div style="margin-bottom: 1rem;">
+    <h2 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em;">Judge Calibration & Bias Personas</h2>
+    <p style="color: var(--text-secondary); font-size: 0.85rem;">Distribution characteristics for each participating evaluator</p>
+  </div>
+
+  {% if lab.judges_stats %}
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+    {% for j in lab.judges_stats %}
+    <div class="card" style="padding: 1.25rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+        <div>
+          <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary);">{{ j.username }}</h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">{{ j.evaluations_count }} evaluations completed</span>
+        </div>
+        <span class="pill {% if j.is_zero_variance %}pill-draft{% elif 'Harsh' in j.status_label %}pill-track{% elif 'Lenient' in j.status_label %}pill-track{% else %}pill-submitted{% endif %}" style="font-size: 0.7rem;">
+          {{ j.status_label }}
+        </span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.82rem; font-family: var(--font-mono); background-color: var(--bg-surface-elevated); padding: 0.65rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <div>
+          <span style="color: var(--text-muted);">Mean (&mu;):</span> <strong>{{ "%.2f"|format(j.mean_raw_score) }}</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">Std (&sigma;):</span> <strong>{{ "%.2f"|format(j.std_dev_raw_score) }}</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">Min:</span> <strong>{{ "%.1f"|format(j.min_raw_score) }}</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">Max:</span> <strong>{{ "%.1f"|format(j.max_raw_score) }}</strong>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+    No judges have submitted evaluations for this event yet.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Section 2: Comparative Rankings & Rank Deltas -->
+<div style="margin-bottom: 3rem;">
+  <div style="margin-bottom: 1rem;">
+    <h2 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em;">Normalized Leaderboard & Rank Shifts</h2>
+    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+      Comparison between Raw Score rankings and Normalized Score rankings.
+      Rank Delta indicates placement adjustments after mitigating grading bias.
+    </p>
+  </div>
+
+  {% if lab.results %}
+  <div class="card" style="padding: 0; overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+      <thead>
+        <tr style="border-bottom: 1px solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center;">Norm Rank</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center;">Shift</th>
+          <th style="padding: 0.85rem 1.25rem; font-weight: 600;">Project</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600;">Team</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center;">Raw Rank</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: right;">Raw Score</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: right;">Mean z-Score</th>
+          <th style="padding: 0.85rem 1.25rem; font-weight: 700; text-align: right;">Normalized Score</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center;">Judges</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in lab.results %}
+        <tr style="border-bottom: 1px solid var(--border-subtle); transition: background-color 0.15s ease;">
+          <!-- Normalized Rank -->
+          <td style="padding: 1rem 1rem; text-align: center;">
+            {% if item.normalized_rank == 1 %}
+              <span class="role-badge role-organizer" style="font-weight: 800;">🥇 #1</span>
+            {% elif item.normalized_rank == 2 %}
+              <span class="role-badge role-judge" style="font-weight: 800;">🥈 #2</span>
+            {% elif item.normalized_rank == 3 %}
+              <span class="role-badge role-participant" style="font-weight: 800;">🥉 #3</span>
+            {% else %}
+              <span style="font-family: var(--font-mono); font-weight: 600; color: var(--text-muted);">#{{ item.normalized_rank }}</span>
+            {% endif %}
+          </td>
+
+          <!-- Rank Shift Delta -->
+          <td style="padding: 1rem 1rem; text-align: center;">
+            {% if item.rank_delta > 0 %}
+              <span style="color: var(--emerald); font-weight: 700; font-family: var(--font-mono); background: var(--emerald-bg); padding: 0.2rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--emerald-border);">
+                &uarr; {{ item.rank_delta }}
+              </span>
+            {% elif item.rank_delta < 0 %}
+              <span style="color: var(--rose); font-weight: 700; font-family: var(--font-mono); background: var(--rose-bg); padding: 0.2rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--rose-border);">
+                &darr; {{ item.rank_delta|abs }}
+              </span>
+            {% else %}
+              <span style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem;">=</span>
+            {% endif %}
+          </td>
+
+          <!-- Project & Team -->
+          <td style="padding: 1rem 1.25rem;">
+            <div style="font-weight: 700; color: var(--text-primary);">{{ item.project_title }}</div>
+            {% if item.track_title %}
+              <span class="pill pill-track" style="font-size: 0.68rem; margin-top: 0.25rem;">{{ item.track_title }}</span>
+            {% endif %}
+          </td>
+          <td style="padding: 1rem 1rem; color: var(--text-secondary);">
+            {{ item.team_name }}
+          </td>
+
+          <!-- Raw Rank & Score -->
+          <td style="padding: 1rem 1rem; text-align: center; font-family: var(--font-mono); color: var(--text-secondary);">
+            #{{ item.raw_rank }}
+          </td>
+          <td style="padding: 1rem 1rem; text-align: right; font-family: var(--font-mono); color: var(--text-secondary);">
+            {{ "%.2f"|format(item.raw_score) }}
+          </td>
+
+          <!-- z-score -->
+          <td style="padding: 1rem 1rem; text-align: right; font-family: var(--font-mono); color: {% if item.normalized_z_score > 0 %}var(--emerald){% elif item.normalized_z_score < 0 %}var(--rose){% else %}var(--text-muted){% endif %}; font-weight: 600;">
+            {% if item.normalized_z_score > 0 %}+{% endif %}{{ "%.3f"|format(item.normalized_z_score) }}
+          </td>
+
+          <!-- Normalized Final Score -->
+          <td style="padding: 1rem 1.25rem; text-align: right; font-family: var(--font-mono); font-weight: 800; font-size: 1.05rem; color: var(--accent-primary);">
+            {{ "%.2f"|format(item.normalized_score) }}
+          </td>
+
+          <!-- Judge Details -->
+          <td style="padding: 1rem 1rem; text-align: center;">
+            <span class="pill" title="{% for jd in item.judge_details %}{{ jd.judge_username }}: raw {{ jd.raw_score }} (z={{ jd.z_score }})&#10;{% endfor %}">
+              {{ item.evaluations_count }} evals
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card" style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+    No projects have received evaluations yet.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Section 3: Algorithmic Architecture Documentation -->
+<div class="card" style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle); padding: 1.75rem;">
+  <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">
+    Algorithm Blueprint: Deterministic Z-Score Rescaling
+  </h2>
+  <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin-bottom: 1.5rem;">
+    The ChameleonOS Normalization Engine calibrates raw scores into standardized z-distributions to eliminate grader harshness, leniency, and variance discrepancies.
+  </p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+    <div style="background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">
+        1. Standardization Formula
+      </h3>
+      <code style="display: block; font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); margin-bottom: 0.5rem;">
+        z_{j, p} = (R_{j, p} - &mu;_j) / &sigma;_j
+      </code>
+      <p style="font-size: 0.8rem; color: var(--text-secondary);">
+        Measures how many standard deviations project \(p\) is above or below judge \(j\)'s historical mean.
+      </p>
+    </div>
+
+    <div style="background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">
+        2. Zero-Variance Safeguard
+      </h3>
+      <code style="display: block; font-family: var(--font-mono); font-size: 0.82rem; color: var(--amber); margin-bottom: 0.5rem;">
+        if &sigma;_j &le; 10^{-6}: z_{j, p} = 0.0
+      </code>
+      <p style="font-size: 0.8rem; color: var(--text-secondary);">
+        When a judge scores every project identically, division by zero is prevented; their votes contribute neutrally at \(z = 0\).
+      </p>
+    </div>
+
+    <div style="background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">
+        3. Benchmark Rescaling
+      </h3>
+      <code style="display: block; font-family: var(--font-mono); font-size: 0.82rem; color: var(--emerald); margin-bottom: 0.5rem;">
+        S_{norm} = &mu;_{global} + (z_{avg} &times; &sigma;_{global})
+      </code>
+      <p style="font-size: 0.8rem; color: var(--text-secondary);">
+        Standardized scores are mapped back to the event's global scale for intuitive interpretation.
+      </p>
+    </div>
+
+    <div style="background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">
+        4. Deterministic Tie-Breaker
+      </h3>
+      <ul style="font-size: 0.8rem; color: var(--text-secondary); padding-left: 1.2rem; line-height: 1.5;">
+        <li>Normalized Score (descending)</li>
+        <li>Raw Aggregate Score (descending)</li>
+        <li>Total Evaluation Count (descending)</li>
+        <li>Project Identifier (lexicographical ascending)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
