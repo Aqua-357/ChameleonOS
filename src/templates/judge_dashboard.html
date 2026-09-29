@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Judge Dashboard &bull; ChameleonOS{% endblock %}
+{% block title %}Judge Evaluation Queue &bull; ChameleonOS{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
     <div>
       <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
-        <h1 class="page-title" style="margin-bottom: 0;">Judge Evaluation Queue</h1>
-        <span class="role-badge role-judge">Judge</span>
+        <h1 class="page-title" style="margin-bottom: 0;">Judge Evaluation Console</h1>
+        <span class="role-badge role-judge">Judge Access</span>
       </div>
       <p class="page-subtitle">Review and score assigned projects using event rubric criteria</p>
     </div>
@@ -16,18 +16,19 @@
 </div>
 
 <!-- Progress Metrics Card -->
-<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-elevated) 100%);">
+<div class="card" style="margin-bottom: 2rem;">
   <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
     <div>
-      <div style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.05em;">
-        Judging Progress
+      <div style="font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.05em;">
+        Your Assigned Queue Progress
       </div>
-      <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin-top: 0.2rem;">
-        {{ completed_count }} / {{ total_assigned }} <span style="font-size: 1rem; font-weight: 500; color: var(--text-muted);">Projects Evaluated</span>
+      <div style="font-size: 1.65rem; font-weight: 800; color: var(--text-primary); margin-top: 0.2rem;">
+        {{ completed_count }} / {{ total_assigned }} 
+        <span style="font-size: 0.95rem; font-weight: 500; color: var(--text-muted);">Projects Evaluated</span>
       </div>
     </div>
     <div style="text-align: right;">
-      <div style="font-size: 1.75rem; font-weight: 800; color: {% if completion_percentage == 100 %}var(--emerald){% else %}var(--accent-primary){% endif %}; font-family: var(--font-mono);">
+      <div style="font-size: 1.65rem; font-weight: 800; color: {% if completion_percentage == 100 %}var(--emerald){% else %}var(--accent-primary){% endif %}; font-family: var(--font-mono);">
         {{ completion_percentage }}%
       </div>
       <div style="font-size: 0.8rem; color: var(--text-muted);">Completion Rate</div>
@@ -35,22 +36,37 @@
   </div>
 
   <!-- Progress Bar -->
-  <div style="width: 100%; height: 8px; background-color: var(--bg-canvas); border-radius: var(--radius-full); overflow: hidden; border: 1px solid var(--border-subtle);">
+  <div style="width: 100%; height: 8px; background-color: var(--bg-canvas); border-radius: var(--radius-full); overflow: hidden; border: var(--border-width, 1px) solid var(--border-subtle);">
     <div style="width: {{ completion_percentage }}%; height: 100%; background-color: {% if completion_percentage == 100 %}var(--emerald){% else %}var(--accent-primary){% endif %}; transition: width 0.3s ease;"></div>
   </div>
 </div>
 
-<!-- Queue Items -->
 {% if queue %}
+<!-- Queue Filter Tabs for Low-Click Fast Comprehension -->
+<div class="tab-bar">
+  <button type="button" class="tab-btn active" onclick="window.filterQueue('all', this)">
+    All Assigned ({{ queue|length }})
+  </button>
+  <button type="button" class="tab-btn" onclick="window.filterQueue('pending', this)">
+    Pending Review ({{ total_assigned - completed_count }})
+  </button>
+  <button type="button" class="tab-btn" onclick="window.filterQueue('completed', this)">
+    Completed ({{ completed_count }})
+  </button>
+</div>
+
+<!-- Queue Items Bento Grid -->
 <div class="bento-grid">
   {% for item in queue %}
-  <div class="card">
+  <div class="card" data-queue-status="{{ item.status }}" style="{% if item.status != 'completed' and loop.first %}border-color: var(--accent-primary); box-shadow: 0 0 0 1px var(--accent-primary);{% endif %}">
     <div>
       <div class="card-header">
-        <h3 class="card-title">{{ item.project_title }}</h3>
-        <span class="pill {% if item.status == 'completed' %}pill-submitted{% else %}pill-draft{% endif %}">
-          {{ item.status }}
-        </span>
+        <h2 class="card-title" style="font-size: 1.15rem;">{{ item.project_title }}</h2>
+        {% if item.status == 'completed' %}
+          <span class="pill pill-submitted">✓ Evaluated</span>
+        {% else %}
+          <span class="pill pill-draft">⏱ Pending</span>
+        {% endif %}
       </div>
 
       {% if item.project_tagline %}
@@ -59,19 +75,19 @@
         </p>
       {% endif %}
 
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+      <div style="display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 1rem;">
         <span class="pill pill-track">{{ item.track_title }}</span>
         <span class="pill">Team: {{ item.team_name }}</span>
       </div>
     </div>
 
     <div>
-      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.85rem; border-top: 1px solid var(--border-subtle); font-size: 0.82rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.85rem; border-top: var(--border-width, 1px) solid var(--border-subtle); font-size: 0.82rem;">
         <span style="color: var(--text-muted);">
-          Scored: <strong style="color: var(--text-primary);">{{ item.scored_criteria_count }} / {{ item.total_criteria_count }}</strong> criteria
+          Scored: <strong style="color: var(--text-primary); font-family: var(--font-mono);">{{ item.scored_criteria_count }} / {{ item.total_criteria_count }}</strong> criteria
         </span>
-        <a href="/judging/projects/{{ item.project_id }}" class="btn {% if item.status == 'completed' %}btn-secondary{% else %}btn-primary{% endif %}" style="padding: 0.35rem 0.85rem; font-size: 0.82rem;">
-          {% if item.status == 'completed' %}Review / Edit &rarr;{% else %}Evaluate Project &rarr;{% endif %}
+        <a href="/judging/projects/{{ item.project_id }}" class="btn {% if item.status == 'completed' %}btn-secondary{% else %}btn-primary{% endif %}" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">
+          {% if item.status == 'completed' %}Edit Score &rarr;{% else %}Evaluate Project &rarr;{% endif %}
         </a>
       </div>
     </div>
@@ -79,12 +95,15 @@
   {% endfor %}
 </div>
 {% else %}
-<div class="card" style="text-align: center; padding: 4rem 2rem;">
-  <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📋</div>
-  <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">No Projects Assigned</h3>
-  <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto;">
-    You do not have any projects assigned to your judging queue yet. Event organizers will assign submitted projects once submissions close.
+<div class="empty-state">
+  <div class="empty-state-icon">📋</div>
+  <h2 class="empty-state-title">No Projects in Judging Queue</h2>
+  <p class="empty-state-desc">
+    You currently do not have any projects assigned to your evaluation queue. Event organizers will distribute submissions once the hacking submission window closes.
   </p>
+  <a href="/gallery" class="btn btn-secondary">
+    Explore Public Gallery &rarr;
+  </a>
 </div>
 {% endif %}
 {% endblock %}

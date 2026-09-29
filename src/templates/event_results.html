@@ -10,10 +10,10 @@
         <h1 class="page-title" style="margin-bottom: 0;">Judging Results & Leaderboard</h1>
         <span class="role-badge role-organizer">Organizer Access</span>
       </div>
-      <p class="page-subtitle">{{ event.title }} &bull; Aggregate Weighted Rankings</p>
+      <p class="page-subtitle">{{ event.title }} &bull; Aggregate Weighted Rankings & Criteria Breakdown</p>
     </div>
 
-    <div style="display: flex; gap: 0.75rem;">
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
       <a href="/events/{{ event.slug }}" class="btn btn-secondary">
         &larr; Back to Event
       </a>
@@ -31,28 +31,36 @@
 <div class="card" style="margin-bottom: 2rem;">
   <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
     <div>
-      <div style="font-size: 0.82rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">
-        Judging Completion
+      <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">
+        Judging Completion Progress
       </div>
-      <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-top: 0.2rem;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin-top: 0.2rem;">
         {{ progress.completed_assignments }} / {{ progress.total_assignments }}
         <span style="font-size: 0.95rem; font-weight: 500; color: var(--text-secondary);">Assignments Finished</span>
       </div>
     </div>
 
     <div style="text-align: right;">
-      <span class="pill {% if progress.completion_percentage == 100 %}pill-submitted{% else %}pill-draft{% endif %}" style="font-size: 0.95rem; padding: 0.35rem 0.85rem;">
+      <span class="pill {% if progress.completion_percentage == 100 %}pill-submitted{% else %}pill-draft{% endif %}" style="font-size: 0.95rem; padding: 0.35rem 0.85rem; font-family: var(--font-mono);">
         {{ progress.completion_percentage }}% Complete
       </span>
     </div>
   </div>
 
+  <!-- Progress Bar -->
+  <div style="width: 100%; height: 8px; background-color: var(--bg-canvas); border-radius: var(--radius-full); overflow: hidden; border: var(--border-width, 1px) solid var(--border-subtle); margin-bottom: 0.75rem;">
+    <div style="width: {{ progress.completion_percentage }}%; height: 100%; background-color: {% if progress.completion_percentage == 100 %}var(--emerald){% else %}var(--accent-primary){% endif %}; transition: width 0.3s ease;"></div>
+  </div>
+
   {% if progress.judge_breakdown %}
-  <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem; margin-top: 0.5rem;">
-    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.6rem;">Judge Breakdown:</div>
+  <div style="border-top: var(--border-width, 1px) solid var(--border-subtle); padding-top: 1rem; margin-top: 0.5rem;">
+    <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 0.6rem; font-family: var(--font-mono);">
+      Judge Evaluator Progress:
+    </div>
     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
       {% for j in progress.judge_breakdown %}
-      <div style="background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.35rem 0.65rem; font-size: 0.78rem;">
+      <div style="background-color: var(--bg-surface-elevated); border: var(--border-width, 1px) solid var(--border-subtle); border-radius: var(--card-radius, var(--radius-sm)); padding: 0.35rem 0.65rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span style="color: {% if j.completed == j.total_assigned %}var(--emerald){% else %}var(--amber){% endif %};">●</span>
         <strong>{{ j.username }}</strong>: {{ j.completed }}/{{ j.total_assigned }} ({{ "%.0f"|format(j.completion_rate) }}%)
       </div>
       {% endfor %}
@@ -61,37 +69,52 @@
   {% endif %}
 </div>
 
-<!-- Results Leaderboard -->
+<!-- Results Leaderboard Section -->
 {% if results %}
-<div class="card" style="padding: 0; overflow-x: auto;">
-  <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+<div class="card" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; max-width: 480px;">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Filter results by project title, team, or track... (Press '/' to focus)" 
+      oninput="window.filterTable(this.value, 'results-table')"
+      style="padding: 0.45rem 0.75rem; font-size: 0.85rem;"
+    >
+  </div>
+  <div style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--font-mono);">
+    Total Ranked: <strong>{{ results|length }}</strong> projects
+  </div>
+</div>
+
+<div class="table-card" style="overflow-x: auto;">
+  <table id="results-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
     <thead>
-      <tr style="border-bottom: 1px solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
-        <th style="padding: 0.85rem 1.25rem; font-weight: 600;">Rank</th>
+      <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
+        <th style="padding: 0.85rem 1.25rem; font-weight: 600; width: 80px;">Rank</th>
         <th style="padding: 0.85rem 1.25rem; font-weight: 600;">Project</th>
         <th style="padding: 0.85rem 1.25rem; font-weight: 600;">Team</th>
         <th style="padding: 0.85rem 1.25rem; font-weight: 600;">Track</th>
         {% for c in rubric.criteria %}
           <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: right;" title="Weight: {{ c.weight }}x">
-            {{ c.name }}
+            {{ c.name }} <span style="font-size: 0.7rem; color: var(--text-muted);">({{ c.weight }}x)</span>
           </th>
         {% endfor %}
-        <th style="padding: 0.85rem 1.25rem; font-weight: 700; text-align: right;">Final Score</th>
-        <th style="padding: 0.85rem 1.25rem; font-weight: 600; text-align: center;">Evals</th>
+        <th style="padding: 0.85rem 1.25rem; font-weight: 700; text-align: right; width: 120px;">Final Score</th>
+        <th style="padding: 0.85rem 1.25rem; font-weight: 600; text-align: center; width: 80px;">Evals</th>
       </tr>
     </thead>
     <tbody>
       {% for res in results %}
-      <tr style="border-bottom: 1px solid var(--border-subtle); transition: background-color 0.15s ease;">
+      <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle); transition: background-color 0.15s ease;">
         <td style="padding: 1rem 1.25rem;">
           {% if res.rank == 1 %}
-            <span class="role-badge role-organizer" style="font-weight: 800;">🥇 #1</span>
+            <span class="role-badge role-organizer" style="font-weight: 800;">🥇 1st</span>
           {% elif res.rank == 2 %}
-            <span class="role-badge role-judge" style="font-weight: 800;">🥈 #2</span>
+            <span class="role-badge role-judge" style="font-weight: 800;">🥈 2nd</span>
           {% elif res.rank == 3 %}
-            <span class="role-badge role-participant" style="font-weight: 800;">🥉 #3</span>
+            <span class="role-badge role-participant" style="font-weight: 800;">🥉 3rd</span>
           {% else %}
-            <span style="font-family: var(--font-mono); font-weight: 600; color: var(--text-muted); padding-left: 0.5rem;">#{{ res.rank }}</span>
+            <span style="font-family: var(--font-mono); font-weight: 600; color: var(--text-muted); padding-left: 0.4rem;">#{{ res.rank }}</span>
           {% endif %}
         </td>
         <td style="padding: 1rem 1.25rem; font-weight: 700; color: var(--text-primary);">
@@ -120,12 +143,16 @@
   </table>
 </div>
 {% else %}
-<div class="card" style="text-align: center; padding: 4rem 2rem;">
-  <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📊</div>
-  <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">No Evaluation Results Yet</h3>
-  <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto;">
-    Projects have not yet been evaluated by judges. Assign judges to submitted projects and once scores are submitted, rankings will calculate automatically.
+<div class="empty-state">
+  <div class="empty-state-icon">📊</div>
+  <h2 class="empty-state-title">No Evaluation Results Yet</h2>
+  <p class="empty-state-desc">
+    Assigned judges have not submitted scores for this event's projects yet. Once evaluations are submitted, the leaderboard and rankings will compute instantly.
   </p>
+  <div style="display: flex; gap: 0.75rem; justify-content: center;">
+    <a href="/events/{{ event.slug }}" class="btn btn-secondary">&larr; Back to Event</a>
+    <a href="/judging" class="btn btn-primary">Go to Judge Queue &rarr;</a>
+  </div>
 </div>
 {% endif %}
 {% endblock %}

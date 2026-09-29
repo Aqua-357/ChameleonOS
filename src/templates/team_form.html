@@ -1,45 +1,61 @@
 {% extends "base.html" %}
 
-{% block title %}Create Team &bull; ChameleonOS{% endblock %}
+{% block title %}Register Team &bull; ChameleonOS{% endblock %}
 
 {% block content %}
 <div style="max-width: 520px; margin: 2rem auto;">
   <div class="form-card">
     <div style="margin-bottom: 1.5rem;">
-      <h2 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em;">Register Hackathon Team</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Form a team to build and submit projects together</p>
+      <h1 class="page-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Register Hackathon Team</h1>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Form a team to build and submit projects collaboratively</p>
     </div>
 
     {% if error %}
     <div class="alert-banner alert-danger" style="margin-bottom: 1.25rem; font-size: 0.85rem;">
       <span>⚠️</span>
-      <span>{{ error }}</span>
+      <div>
+        <strong>Registration Error</strong>
+        <div>{{ error }}</div>
+      </div>
     </div>
     {% endif %}
 
     <form method="POST" action="/teams/new">
       <div class="form-group">
-        <label class="form-label" for="event_id">Select Hackathon Event</label>
+        <label class="form-label" for="event_id">Target Hackathon Event *</label>
         <select class="form-select" id="event_id" name="event_id" required>
           {% for event in events %}
             <option value="{{ event.id }}" {% if active_event_id == event.id %}selected{% endif %}>
-              {{ event.title }} ({{ event.phase }})
+              {{ event.title }} (Phase: {{ event.phase }})
             </option>
           {% endfor %}
         </select>
+        <div class="form-hint">Teams are scoped to the chosen event</div>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="name">Team Name</label>
-        <input class="form-input" type="text" id="name" name="name" required placeholder="e.g. Distributed Neurons">
-        <div class="form-hint">You will automatically be designated as Team Lead</div>
+        <label class="form-label" for="name">Team Name *</label>
+        <input 
+          class="form-input" 
+          type="text" 
+          id="name" 
+          name="name" 
+          required 
+          data-autofocus 
+          placeholder="e.g. Distributed Neurons"
+          style="font-size: 0.98rem; font-weight: 600;"
+        >
+        <div class="form-hint">As the creator, you will automatically be designated as the Team Lead</div>
       </div>
 
-      <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.75rem;">
-        <a href="/events" class="btn btn-secondary">Cancel</a>
-        <button type="submit" class="btn btn-primary">
-          Create Team &rarr;
-        </button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.75rem; border-top: var(--border-width, 1px) solid var(--border-subtle); padding-top: 1.25rem;">
+        <span class="kbd-hint">Ctrl+Enter to create</span>
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="/events" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            Create Team &rarr;
+          </button>
+        </div>
       </div>
     </form>
   </div>

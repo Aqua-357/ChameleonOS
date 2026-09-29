@@ -119,32 +119,45 @@
   </div>
 
   {% if lab.results %}
-  <div class="card" style="padding: 0; overflow-x: auto;">
-    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+  <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Filter calibrated projects by title, team, or track... (Press '/' to focus)" 
+      oninput="window.filterTable(this.value, 'norm-projects-table')"
+      style="max-width: 480px; padding: 0.45rem 0.75rem; font-size: 0.85rem;"
+    >
+    <div style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--font-mono);">
+      Total Calibrated: <strong>{{ lab.results|length }}</strong> projects
+    </div>
+  </div>
+
+  <div class="table-card" style="overflow-x: auto;">
+    <table id="norm-projects-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
       <thead>
-        <tr style="border-bottom: 1px solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
-          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center;">Norm Rank</th>
-          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center;">Shift</th>
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center; width: 100px;">Norm Rank</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center; width: 80px;">Shift</th>
           <th style="padding: 0.85rem 1.25rem; font-weight: 600;">Project</th>
           <th style="padding: 0.85rem 1rem; font-weight: 600;">Team</th>
-          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center;">Raw Rank</th>
-          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: right;">Raw Score</th>
-          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: right;">Mean z-Score</th>
-          <th style="padding: 0.85rem 1.25rem; font-weight: 700; text-align: right;">Normalized Score</th>
-          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center;">Judges</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center; width: 90px;">Raw Rank</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: right; width: 100px;">Raw Score</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: right; width: 110px;">Mean z-Score</th>
+          <th style="padding: 0.85rem 1.25rem; font-weight: 700; text-align: right; width: 140px;">Normalized Score</th>
+          <th style="padding: 0.85rem 1rem; font-weight: 600; text-align: center; width: 80px;">Judges</th>
         </tr>
       </thead>
       <tbody>
         {% for item in lab.results %}
-        <tr style="border-bottom: 1px solid var(--border-subtle); transition: background-color 0.15s ease;">
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle); transition: background-color 0.15s ease;">
           <!-- Normalized Rank -->
           <td style="padding: 1rem 1rem; text-align: center;">
             {% if item.normalized_rank == 1 %}
-              <span class="role-badge role-organizer" style="font-weight: 800;">🥇 #1</span>
+              <span class="role-badge role-organizer" style="font-weight: 800;">🥇 1st</span>
             {% elif item.normalized_rank == 2 %}
-              <span class="role-badge role-judge" style="font-weight: 800;">🥈 #2</span>
+              <span class="role-badge role-judge" style="font-weight: 800;">🥈 2nd</span>
             {% elif item.normalized_rank == 3 %}
-              <span class="role-badge role-participant" style="font-weight: 800;">🥉 #3</span>
+              <span class="role-badge role-participant" style="font-weight: 800;">🥉 3rd</span>
             {% else %}
               <span style="font-family: var(--font-mono); font-weight: 600; color: var(--text-muted);">#{{ item.normalized_rank }}</span>
             {% endif %}
@@ -153,15 +166,15 @@
           <!-- Rank Shift Delta -->
           <td style="padding: 1rem 1rem; text-align: center;">
             {% if item.rank_delta > 0 %}
-              <span style="color: var(--emerald); font-weight: 700; font-family: var(--font-mono); background: var(--emerald-bg); padding: 0.2rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--emerald-border);">
+              <span class="rank-badge rank-up">
                 &uarr; {{ item.rank_delta }}
               </span>
             {% elif item.rank_delta < 0 %}
-              <span style="color: var(--rose); font-weight: 700; font-family: var(--font-mono); background: var(--rose-bg); padding: 0.2rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--rose-border);">
+              <span class="rank-badge rank-down">
                 &darr; {{ item.rank_delta|abs }}
               </span>
             {% else %}
-              <span style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem;">=</span>
+              <span class="rank-badge rank-same">=</span>
             {% endif %}
           </td>
 

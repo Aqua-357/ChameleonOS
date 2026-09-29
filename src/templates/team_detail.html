@@ -6,16 +6,22 @@
 <div style="margin-bottom: 2rem;">
   <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
     <div>
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
         <h1 class="page-title" style="margin-bottom: 0;">{{ team.name }}</h1>
         <span class="pill pill-track">{{ team.event.title if team.event else 'Hackathon Team' }}</span>
+        <span class="pill pill-submitted">{{ team.members|length }} Members</span>
       </div>
-      <p class="page-subtitle">Team Identifier: <code>{{ team.id }}</code></p>
+      <p class="page-subtitle" style="margin-top: 0.25rem;">
+        Team ID: <code>{{ team.id }}</code>
+      </p>
     </div>
 
-    <div style="display: flex; gap: 0.75rem;">
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="/events/{{ team.event.slug if team.event else '' }}" class="btn btn-secondary">
+        &larr; View Event
+      </a>
       <a href="/projects/new" class="btn btn-primary">
-        + Start Project Submission
+        + Start Project Submission &rarr;
       </a>
     </div>
   </div>
@@ -23,24 +29,35 @@
   {% if error %}
   <div class="alert-banner alert-danger" style="margin-bottom: 1.5rem;">
     <span>⚠️</span>
-    <span>{{ error }}</span>
+    <div>
+      <strong>Team Error</strong>
+      <div>{{ error }}</div>
+    </div>
   </div>
   {% endif %}
 
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
-    <!-- Team Members -->
+    <!-- Team Members Roster -->
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-        <h3 style="font-size: 1.15rem; font-weight: 700;">Team Roster</h3>
-        <span class="pill pill-submitted">{{ team.members|length }} Members</span>
+        <div>
+          <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.15rem;">Team Roster</h2>
+          <p style="font-size: 0.82rem; color: var(--text-secondary);">Active collaborators and leaders</p>
+        </div>
+        <span class="pill pill-track">{{ team.members|length }} Active</span>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 0.75rem;">
         {% for member in team.members %}
-        <div style="display: flex; justify-content: space-between; align-items: center; background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.75rem 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; background-color: var(--bg-surface-elevated); border: var(--border-width, 1px) solid var(--border-subtle); border-radius: var(--card-radius, var(--radius-sm)); padding: 0.75rem 1rem;">
           <div style="display: flex; align-items: center; gap: 0.6rem;">
-            <span style="font-weight: 600; color: var(--text-primary);">{{ member.user.username }}</span>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">({{ member.user.email }})</span>
+            <div style="width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--accent-badge-bg); color: var(--accent-badge-color); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
+              {{ member.user.username[0]|upper }}
+            </div>
+            <div>
+              <div style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">{{ member.user.username }}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">{{ member.user.email }}</div>
+            </div>
           </div>
           <span class="role-badge {% if member.role == 'lead' %}role-organizer{% else %}role-participant{% endif %}">
             {{ member.role }}
@@ -52,46 +69,60 @@
 
     <!-- Invites & Teammates -->
     <div class="card">
-      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Invite Teammates</h3>
-      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">
-        Send an invitation or generate a shareable tokenized join link for your collaborators.
-      </p>
+      <div style="margin-bottom: 1rem;">
+        <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.15rem;">Invite Collaborators</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+          Generate secure single-use join links for teammates
+        </p>
+      </div>
 
       <form method="POST" action="/teams/{{ team.id }}/invites" style="margin-bottom: 1.5rem;">
-        <div style="display: flex; gap: 0.5rem;">
-          <input class="form-input" type="email" name="invitee_email" required placeholder="collaborator@example.com" style="flex: 1;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <input 
+            class="form-input" 
+            type="email" 
+            name="invitee_email" 
+            required 
+            placeholder="collaborator@example.com" 
+            style="flex: 1; min-width: 200px;"
+          >
           <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
-            Create Invite
+            + Generate Invite
           </button>
         </div>
       </form>
 
       {% if invites %}
-      <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
-        <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.75rem;">
-          Generated Invite Links
+      <div style="border-top: var(--border-width, 1px) solid var(--border-subtle); padding-top: 1rem;">
+        <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.75rem;">
+          Active Join Links ({{ invites|length }})
         </div>
         <div style="display: flex; flex-direction: column; gap: 0.65rem;">
           {% for inv in invites %}
-          <div style="background-color: var(--bg-canvas); border: 1px solid var(--border-muted); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; font-size: 0.82rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
-              <span style="font-weight: 500; color: var(--text-primary);">{{ inv.email }}</span>
+          <div style="background-color: var(--bg-canvas); border: var(--border-width, 1px) solid var(--border-muted); border-radius: var(--card-radius, var(--radius-sm)); padding: 0.65rem 0.85rem; font-size: 0.82rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <span style="font-weight: 600; color: var(--text-primary);">{{ inv.email }}</span>
               <span class="pill {% if inv.status == 'accepted' %}pill-submitted{% else %}pill-draft{% endif %}">
-                {{ inv.status }}
+                {{ inv.status|title }}
               </span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <input class="form-input" id="invite-url-{{ loop.index }}" type="text" readonly value="{{ inv.url }}" style="font-family: var(--font-mono); font-size: 0.75rem; padding: 0.3rem 0.5rem;">
-              <button type="button" class="btn btn-secondary" data-copy-target="invite-url-{{ loop.index }}" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; white-space: nowrap;">
-                Copy
+              <button type="button" class="btn btn-secondary" data-copy-target="invite-url-{{ loop.index }}" style="padding: 0.3rem 0.65rem; font-size: 0.75rem; white-space: nowrap;">
+                Copy Link
               </button>
-              <a href="{{ inv.url }}" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; white-space: nowrap;">
-                Open &nearr;
-              </a>
             </div>
           </div>
           {% endfor %}
         </div>
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding: 2rem 1rem; border-style: dashed;">
+        <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">✉️</div>
+        <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">No active invite links</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">
+          Enter a teammate's email above to generate an instant invite link.
+        </p>
       </div>
       {% endif %}
     </div>
