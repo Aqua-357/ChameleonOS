@@ -1,0 +1,21 @@
+services:
+  chameleonos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chameleonos_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////app/data/chameleon.db
+      - APP_ENV=production
+      - DEBUG=false
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
