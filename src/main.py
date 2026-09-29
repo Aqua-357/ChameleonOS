@@ -21,6 +21,7 @@ from src.submissions.router import router as submissions_router
 from src.judging.router import router as judging_router
 from src.normalization.router import router as normalization_router
 from src.audit.router import router as audit_router
+from src.themes.router import router as themes_router
 
 settings = get_settings()
 BASE_DIR = Path(__file__).resolve().parent
@@ -120,3 +121,4 @@ app.include_router(submissions_router)
 app.include_router(judging_router)
 app.include_router(normalization_router)
 app.include_router(audit_router)
+app.include_router(themes_router)

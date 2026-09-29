@@ -31,6 +31,17 @@
       </a>
     {% endif %}
   </div>
+
+  <!-- Live Visual Archetype Morph Bar -->
+  <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+    <span style="font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">Archetype Morph:</span>
+    <button type="button" onclick="switchTheme('verdant')" class="pill {% if current_theme == 'verdant' %}pill-submitted{% endif %}" style="cursor: pointer; background: var(--bg-surface-elevated);">🌿 Verdant</button>
+    <button type="button" onclick="switchTheme('cosmos')" class="pill {% if current_theme == 'cosmos' %}pill-submitted{% endif %}" style="cursor: pointer; background: var(--bg-surface-elevated);">✨ Cosmos</button>
+    <button type="button" onclick="switchTheme('arcade')" class="pill {% if current_theme == 'arcade' %}pill-submitted{% endif %}" style="cursor: pointer; background: var(--bg-surface-elevated);">👾 Arcade</button>
+    <button type="button" onclick="switchTheme('monolith')" class="pill {% if current_theme == 'monolith' %}pill-submitted{% endif %}" style="cursor: pointer; background: var(--bg-surface-elevated);">⬛ Monolith</button>
+    <button type="button" onclick="switchTheme('bio')" class="pill {% if current_theme == 'bio' %}pill-submitted{% endif %}" style="cursor: pointer; background: var(--bg-surface-elevated);">🧬 Bio</button>
+    <button type="button" onclick="switchTheme('atelier')" class="pill {% if current_theme == 'atelier' %}pill-submitted{% endif %}" style="cursor: pointer; background: var(--bg-surface-elevated);">⚜️ Atelier</button>
+  </div>
 </div>
 
 <!-- Active Events Section -->

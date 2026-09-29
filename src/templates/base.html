@@ -1,10 +1,43 @@
+{% set query_theme = request.query_params.get('theme') if request and request.query_params else None %}
+{% set event_theme = (event and event.theme_config and event.theme_config.get('archetype')) or (project and project.event and project.event.theme_config and project.event.theme_config.get('archetype')) or (events and events[0] and events[0].theme_config and events[0].theme_config.get('archetype')) %}
+{% set raw_theme = query_theme or theme_archetype or event_theme or 'verdant' %}
+{% if 'cosmos' in raw_theme|lower %}
+  {% set current_theme = 'cosmos' %}
+{% elif 'arcade' in raw_theme|lower %}
+  {% set current_theme = 'arcade' %}
+{% elif 'monolith' in raw_theme|lower %}
+  {% set current_theme = 'monolith' %}
+{% elif 'bio' in raw_theme|lower %}
+  {% set current_theme = 'bio' %}
+{% elif 'atelier' in raw_theme|lower %}
+  {% set current_theme = 'atelier' %}
+{% else %}
+  {% set current_theme = 'verdant' %}
+{% endif %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="{{ current_theme }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}ChameleonOS{% endblock %}</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  {% if active_theme_tokens %}
+  <style id="active-theme-tokens">
+    :root {
+      {% for k, v in active_theme_tokens.items() %}
+      {{ k }}: {{ v }};
+      {% endfor %}
+    }
+  </style>
+  {% elif event and event.theme_config and event.theme_config.get('tokens') %}
+  <style id="event-theme-tokens">
+    :root {
+      {% for k, v in event.theme_config.get('tokens').items() %}
+      {{ k }}: {{ v }};
+      {% endfor %}
+    }
+  </style>
+  {% endif %}
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -12,9 +45,9 @@
     <div class="container nav-wrapper">
       <div class="brand-group">
         <a href="/" class="brand-link">
-          <span style="font-size: 1.25rem;">🦎</span>
+          <span class="archetype-glyph"></span>
           <span>ChameleonOS</span>
-          <span class="brand-badge">2026</span>
+          <span class="brand-badge">{{ current_theme|upper }}</span>
         </a>
 
         <nav class="nav-links">
@@ -34,6 +67,18 @@
       </div>
 
       <div class="user-nav">
+        <!-- Live Visual Archetype Switcher -->
+        <div class="theme-switcher-wrapper" title="ChameleonOS Visual Archetype">
+          <select class="theme-switcher-select" id="theme-archetype-select" onchange="switchTheme(this.value)" aria-label="Visual Archetype">
+            <option value="verdant" {% if current_theme == 'verdant' %}selected{% endif %}>🌿 Verdant</option>
+            <option value="cosmos" {% if current_theme == 'cosmos' %}selected{% endif %}>✨ Cosmos</option>
+            <option value="arcade" {% if current_theme == 'arcade' %}selected{% endif %}>👾 Arcade</option>
+            <option value="monolith" {% if current_theme == 'monolith' %}selected{% endif %}>⬛ Monolith</option>
+            <option value="bio" {% if current_theme == 'bio' %}selected{% endif %}>🧬 Bio</option>
+            <option value="atelier" {% if current_theme == 'atelier' %}selected{% endif %}>⚜️ Atelier</option>
+          </select>
+        </div>
+
         {% if user %}
           <span class="role-badge role-{{ user.role }}">{{ user.role }}</span>
           <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">{{ user.username }}</span>
@@ -55,9 +100,9 @@
 
   <footer class="app-footer">
     <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-      <p>ChameleonOS &copy; 2026 &bull; Self-Hostable Adaptive Hackathon Platform &bull; MIT License</p>
+      <p>ChameleonOS &copy; 2026 &bull; Adaptive Event Archetypes: <strong>{{ current_theme|title }}</strong> &bull; MIT License</p>
       <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">
-        Zero External CDN &bull; SQLite Architecture
+        Zero External CDN &bull; SQLite Architecture &bull; 6 Visual Archetypes
       </div>
     </div>
   </footer>

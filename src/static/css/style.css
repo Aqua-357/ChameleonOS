@@ -1,26 +1,48 @@
 /* ==============================================================================
-   ChameleonOS - Modern Editorial Functional UI
+   ChameleonOS - Adaptive Design Token & Archetype System
    Zero External CDN • Pure Self-Contained CSS
-   Inspired by Linear, Vercel, and Stripe Press
+   Six Visual Archetypes: Verdant, Cosmos, Arcade, Monolith, Bio, Atelier
+   Modifies: Colors, Typography, Card Treatment, Borders, Backgrounds, Motion, Accents
    ============================================================================== */
 
+/* Base Fallback Tokens (Verdant Terra default) */
 :root {
-  --bg-canvas: #090d16;
-  --bg-surface: #111726;
-  --bg-surface-elevated: #1a2236;
-  --bg-surface-active: #222c44;
-  --border-subtle: #1e293b;
-  --border-muted: #2e3b52;
-  --border-focus: #3b82f6;
+  --bg-canvas: #07130c;
+  --bg-surface: #0f2117;
+  --bg-surface-elevated: #173022;
+  --bg-surface-active: #1f3e2d;
+  --text-primary: #f2fbf5;
+  --text-secondary: #8ebba0;
+  --text-muted: #5a886d;
+  --accent-primary: #10b981;
+  --accent-primary-hover: #059669;
+  --accent-secondary: #34d399;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --font-heading: system-ui, -apple-system, sans-serif;
+  --font-body: system-ui, -apple-system, sans-serif;
+  --heading-letter-spacing: -0.01em;
+  --heading-transform: none;
 
-  --accent-primary: #3b82f6;
-  --accent-primary-hover: #2563eb;
-  --accent-secondary: #0ea5e9;
-  
+  --card-radius: 16px;
+  --card-shadow: 0 8px 30px rgba(7, 19, 12, 0.4);
+  --card-backdrop: none;
+
+  --border-subtle: rgba(16, 185, 129, 0.15);
+  --border-muted: rgba(16, 185, 129, 0.3);
+  --border-focus: #10b981;
+  --border-width: 1px;
+
+  --bg-gradient: radial-gradient(ellipse at 50% 0%, #132a1e 0%, #07130c 75%);
+
+  --motion-duration: 0.35s;
+  --motion-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --accent-badge-bg: rgba(16, 185, 129, 0.12);
+  --accent-badge-border: rgba(16, 185, 129, 0.3);
+  --accent-badge-color: #34d399;
+  --accent-symbol: "🌿";
+
+  /* Static Functional Colors */
   --emerald: #10b981;
   --emerald-bg: rgba(16, 185, 129, 0.1);
   --emerald-border: rgba(16, 185, 129, 0.25);
@@ -38,10 +60,228 @@
   --radius-lg: 14px;
   --radius-full: 9999px;
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
+/* ==============================================================================
+   ARCHETYPE 1: VERDANT (Organic Ecological Vitality)
+   ============================================================================== */
+:root[data-theme="verdant"],
+html[data-theme="verdant"],
+body[data-theme="verdant"] {
+  --bg-canvas: #07130c;
+  --bg-surface: #0f2117;
+  --bg-surface-elevated: #173022;
+  --bg-surface-active: #1f3e2d;
+  --text-primary: #f2fbf5;
+  --text-secondary: #8ebba0;
+  --text-muted: #5a886d;
+  --accent-primary: #10b981;
+  --accent-primary-hover: #059669;
+  --accent-secondary: #34d399;
+  --font-heading: system-ui, -apple-system, sans-serif;
+  --font-body: system-ui, -apple-system, sans-serif;
+  --heading-letter-spacing: -0.01em;
+  --heading-transform: none;
+  --card-radius: 16px;
+  --card-shadow: 0 8px 30px rgba(7, 19, 12, 0.4);
+  --card-backdrop: none;
+  --border-subtle: rgba(16, 185, 129, 0.15);
+  --border-muted: rgba(16, 185, 129, 0.3);
+  --border-focus: #10b981;
+  --border-width: 1px;
+  --bg-gradient: radial-gradient(ellipse at 50% 0%, #132a1e 0%, #07130c 75%);
+  --motion-duration: 0.35s;
+  --motion-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --accent-badge-bg: rgba(16, 185, 129, 0.12);
+  --accent-badge-border: rgba(16, 185, 129, 0.3);
+  --accent-badge-color: #34d399;
+  --accent-symbol: "🌿";
+}
+
+/* ==============================================================================
+   ARCHETYPE 2: COSMOS (Celestial Space & Nebula)
+   ============================================================================== */
+:root[data-theme="cosmos"],
+html[data-theme="cosmos"],
+body[data-theme="cosmos"] {
+  --bg-canvas: #040714;
+  --bg-surface: #0a1026;
+  --bg-surface-elevated: #121a3a;
+  --bg-surface-active: #1c2652;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-primary: #6366f1;
+  --accent-primary-hover: #4f46e5;
+  --accent-secondary: #38bdf8;
+  --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --heading-letter-spacing: 0.04em;
+  --heading-transform: uppercase;
+  --card-radius: 14px;
+  --card-shadow: 0 10px 40px rgba(99, 102, 241, 0.12);
+  --card-backdrop: blur(16px);
+  --border-subtle: rgba(99, 102, 241, 0.2);
+  --border-muted: rgba(56, 189, 248, 0.3);
+  --border-focus: #38bdf8;
+  --border-width: 1px;
+  --bg-gradient: radial-gradient(circle at 50% 10%, #151838 0%, #040714 80%);
+  --motion-duration: 0.45s;
+  --motion-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --accent-badge-bg: rgba(99, 102, 241, 0.15);
+  --accent-badge-border: rgba(99, 102, 241, 0.35);
+  --accent-badge-color: #818cf8;
+  --accent-symbol: "✨";
+}
+
+/* ==============================================================================
+   ARCHETYPE 3: ARCADE (Retro Gaming & Chiptune Synthwave)
+   ============================================================================== */
+:root[data-theme="arcade"],
+html[data-theme="arcade"],
+body[data-theme="arcade"] {
+  --bg-canvas: #0f0b1a;
+  --bg-surface: #1b142e;
+  --bg-surface-elevated: #271c42;
+  --bg-surface-active: #352659;
+  --text-primary: #fdf4ff;
+  --text-secondary: #d8b4fe;
+  --text-muted: #9333ea;
+  --accent-primary: #ec4899;
+  --accent-primary-hover: #db2777;
+  --accent-secondary: #06b6d4;
+  --font-heading: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-body: system-ui, -apple-system, sans-serif;
+  --heading-letter-spacing: 0.02em;
+  --heading-transform: uppercase;
+  --card-radius: 4px;
+  --card-shadow: 4px 4px 0px rgba(236, 72, 153, 0.35);
+  --card-backdrop: none;
+  --border-subtle: rgba(236, 72, 153, 0.35);
+  --border-muted: rgba(6, 182, 212, 0.5);
+  --border-focus: #ec4899;
+  --border-width: 2px;
+  --bg-gradient: linear-gradient(180deg, #1b122e 0%, #0f0b1a 100%);
+  --motion-duration: 0.09s;
+  --motion-easing: cubic-bezier(0, 0, 0.2, 1);
+  --accent-badge-bg: rgba(236, 72, 153, 0.18);
+  --accent-badge-border: rgba(236, 72, 153, 0.45);
+  --accent-badge-color: #f472b6;
+  --accent-symbol: "👾";
+}
+
+/* ==============================================================================
+   ARCHETYPE 4: MONOLITH (Brutalist Architectural Precision)
+   ============================================================================== */
+:root[data-theme="monolith"],
+html[data-theme="monolith"],
+body[data-theme="monolith"] {
+  --bg-canvas: #09090b;
+  --bg-surface: #141417;
+  --bg-surface-elevated: #1e1e24;
+  --bg-surface-active: #2b2b34;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --accent-primary: #f4f4f5;
+  --accent-primary-hover: #e4e4e7;
+  --accent-secondary: #a1a1aa;
+  --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --heading-letter-spacing: -0.04em;
+  --heading-transform: none;
+  --card-radius: 0px;
+  --card-shadow: 5px 5px 0px #000000;
+  --card-backdrop: none;
+  --border-subtle: #27272a;
+  --border-muted: #3f3f46;
+  --border-focus: #fafafa;
+  --border-width: 2px;
+  --bg-gradient: linear-gradient(180deg, #121215 0%, #09090b 100%);
+  --motion-duration: 0.12s;
+  --motion-easing: linear;
+  --accent-badge-bg: #27272a;
+  --accent-badge-border: #52525b;
+  --accent-badge-color: #f4f4f5;
+  --accent-symbol: "⬛";
+}
+
+/* ==============================================================================
+   ARCHETYPE 5: BIO (Synthetic Biology & Genomic Lab)
+   ============================================================================== */
+:root[data-theme="bio"],
+html[data-theme="bio"],
+body[data-theme="bio"] {
+  --bg-canvas: #051317;
+  --bg-surface: #0c2026;
+  --bg-surface-elevated: #122c34;
+  --bg-surface-active: #193c47;
+  --text-primary: #f0fdf4;
+  --text-secondary: #7dd3fc;
+  --text-muted: #38bdf8;
+  --accent-primary: #84cc16;
+  --accent-primary-hover: #65a30d;
+  --accent-secondary: #06b6d4;
+  --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --heading-letter-spacing: 0.01em;
+  --heading-transform: none;
+  --card-radius: 20px;
+  --card-shadow: 0 6px 25px rgba(132, 204, 22, 0.1);
+  --card-backdrop: none;
+  --border-subtle: rgba(132, 204, 22, 0.2);
+  --border-muted: rgba(6, 182, 212, 0.35);
+  --border-focus: #84cc16;
+  --border-width: 1px;
+  --bg-gradient: radial-gradient(ellipse at 30% 0%, #0d2830 0%, #051317 75%);
+  --motion-duration: 0.3s;
+  --motion-easing: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --accent-badge-bg: rgba(132, 204, 22, 0.15);
+  --accent-badge-border: rgba(132, 204, 22, 0.35);
+  --accent-badge-color: #a3e635;
+  --accent-symbol: "🧬";
+}
+
+/* ==============================================================================
+   ARCHETYPE 6: ATELIER (Artisanal Editorial & Roasted Umber)
+   ============================================================================== */
+:root[data-theme="atelier"],
+html[data-theme="atelier"],
+body[data-theme="atelier"] {
+  --bg-canvas: #120e0b;
+  --bg-surface: #1c1713;
+  --bg-surface-elevated: #29211c;
+  --bg-surface-active: #382d26;
+  --text-primary: #fef3c7;
+  --text-secondary: #d6c7b2;
+  --text-muted: #9c8b77;
+  --accent-primary: #d97706;
+  --accent-primary-hover: #b45309;
+  --accent-secondary: #f59e0b;
+  --font-heading: Charter, 'Iowan Old Style', 'Times New Roman', Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Georgia, serif;
+  --heading-letter-spacing: -0.015em;
+  --heading-transform: none;
+  --card-radius: 8px;
+  --card-shadow: 0 6px 20px rgba(18, 14, 11, 0.6);
+  --card-backdrop: none;
+  --border-subtle: rgba(217, 119, 6, 0.25);
+  --border-muted: rgba(245, 158, 11, 0.35);
+  --border-focus: #f59e0b;
+  --border-width: 1px;
+  --bg-gradient: radial-gradient(ellipse at 50% 10%, #28201a 0%, #120e0b 80%);
+  --motion-duration: 0.4s;
+  --motion-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --accent-badge-bg: rgba(217, 119, 6, 0.15);
+  --accent-badge-border: rgba(217, 119, 6, 0.35);
+  --accent-badge-color: #fbbf24;
+  --accent-symbol: "⚜️";
+}
+
+/* ==============================================================================
+   Core Global Reset & Layout
+   ============================================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -49,20 +289,24 @@
 }
 
 body {
+  background: var(--bg-gradient, var(--bg-canvas));
   background-color: var(--bg-canvas);
+  background-attachment: fixed;
   color: var(--text-primary);
-  font-family: var(--font-sans);
+  font-family: var(--font-body, var(--font-sans));
   font-size: 15px;
   line-height: 1.6;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
+  transition: background var(--motion-duration, 0.25s) var(--motion-easing, ease),
+              color var(--motion-duration, 0.25s) var(--motion-easing, ease);
 }
 
 /* Container */
 .container {
-  max-width: 1100px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 0 1.5rem;
   width: 100%;
@@ -70,19 +314,23 @@ body {
 
 /* Navigation Header */
 header.app-header {
-  border-bottom: 1px solid var(--border-subtle);
-  background-color: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(12px);
+  border-bottom: var(--border-width, 1px) solid var(--border-subtle);
+  background-color: var(--bg-surface);
+  backdrop-filter: var(--card-backdrop, blur(12px));
+  -webkit-backdrop-filter: var(--card-backdrop, blur(12px));
   position: sticky;
   top: 0;
   z-index: 50;
   padding: 0.85rem 0;
+  transition: background-color var(--motion-duration, 0.2s) var(--motion-easing, ease),
+              border-color var(--motion-duration, 0.2s) var(--motion-easing, ease);
 }
 
 .nav-wrapper {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .brand-group {
@@ -97,9 +345,11 @@ header.app-header {
   gap: 0.6rem;
   text-decoration: none;
   color: var(--text-primary);
+  font-family: var(--font-heading, var(--font-sans));
   font-weight: 700;
   font-size: 1.15rem;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--heading-letter-spacing, -0.02em);
+  text-transform: var(--heading-transform, none);
 }
 
 .brand-badge {
@@ -107,10 +357,10 @@ header.app-header {
   font-size: 0.7rem;
   font-weight: 600;
   padding: 0.15rem 0.45rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--card-radius, var(--radius-sm));
   background-color: var(--bg-surface-elevated);
   color: var(--text-secondary);
-  border: 1px solid var(--border-muted);
+  border: var(--border-width, 1px) solid var(--border-muted);
 }
 
 .nav-links {
@@ -124,7 +374,7 @@ header.app-header {
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: color 0.15s ease;
+  transition: color var(--motion-duration, 0.15s) var(--motion-easing, ease);
 }
 
 .nav-link:hover, .nav-link.active {
@@ -135,6 +385,37 @@ header.app-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+/* Theme Switcher Widget */
+.theme-switcher-wrapper {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.theme-switcher-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  border: var(--border-width, 1px) solid var(--border-muted);
+  border-radius: var(--card-radius, var(--radius-sm));
+  padding: 0.25rem 1.6rem 0.25rem 0.6rem;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all var(--motion-duration, 0.2s) var(--motion-easing, ease);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.45rem center;
+}
+
+.theme-switcher-select:hover {
+  color: var(--text-primary);
+  border-color: var(--border-focus);
 }
 
 /* Role Badges */
@@ -164,15 +445,15 @@ header.app-header {
 }
 
 .role-judge {
-  background-color: rgba(59, 130, 246, 0.12);
-  color: var(--accent-primary);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: var(--accent-badge-bg);
+  color: var(--accent-badge-color);
+  border: var(--border-width, 1px) solid var(--accent-badge-border);
 }
 
 .role-visitor {
   background-color: var(--bg-surface-elevated);
   color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
+  border: var(--border-width, 1px) solid var(--border-subtle);
 }
 
 /* Buttons */
@@ -182,17 +463,41 @@ header.app-header {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.45rem 0.9rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--card-radius, var(--radius-sm));
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
-  border: 1px solid transparent;
+  transition: background-color var(--motion-duration, 0.15s) var(--motion-easing, ease),
+              border-color var(--motion-duration, 0.15s) var(--motion-easing, ease),
+              color var(--motion-duration, 0.15s) var(--motion-easing, ease),
+              box-shadow var(--motion-duration, 0.15s) var(--motion-easing, ease),
+              transform var(--motion-duration, 0.1s) var(--motion-easing, ease);
+  border: var(--border-width, 1px) solid transparent;
 }
 
 .btn-primary {
   background-color: var(--accent-primary);
+  color: var(--bg-canvas);
+}
+
+/* In monolith or dark accents ensure contrast */
+[data-theme="monolith"] .btn-primary {
+  color: #09090b;
+}
+[data-theme="arcade"] .btn-primary {
+  color: #ffffff;
+}
+[data-theme="cosmos"] .btn-primary {
+  color: #ffffff;
+}
+[data-theme="verdant"] .btn-primary {
+  color: #07130c;
+}
+[data-theme="bio"] .btn-primary {
+  color: #051317;
+}
+[data-theme="atelier"] .btn-primary {
   color: #ffffff;
 }
 
@@ -208,7 +513,7 @@ header.app-header {
 
 .btn-secondary:hover {
   background-color: var(--bg-surface-active);
-  border-color: var(--text-muted);
+  border-color: var(--border-focus);
 }
 
 .btn-danger {
@@ -233,10 +538,16 @@ main {
   margin-bottom: 2rem;
 }
 
+/* Headings with archetype typography treatment */
+h1, h2, h3, h4, .page-title, .card-title, .hero-title, .section-title {
+  font-family: var(--font-heading, var(--font-sans));
+  letter-spacing: var(--heading-letter-spacing, -0.02em);
+  text-transform: var(--heading-transform, none);
+}
+
 .page-title {
   font-size: 1.85rem;
   font-weight: 700;
-  letter-spacing: -0.03em;
   color: var(--text-primary);
   margin-bottom: 0.35rem;
 }
@@ -255,10 +566,15 @@ main {
 
 .card {
   background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border: var(--border-width, 1px) solid var(--border-subtle);
+  border-radius: var(--card-radius, var(--radius-md));
+  box-shadow: var(--card-shadow, none);
+  backdrop-filter: var(--card-backdrop, none);
+  -webkit-backdrop-filter: var(--card-backdrop, none);
   padding: 1.5rem;
-  transition: border-color 0.2s ease, transform 0.15s ease;
+  transition: border-color var(--motion-duration, 0.2s) var(--motion-easing, ease),
+              box-shadow var(--motion-duration, 0.2s) var(--motion-easing, ease),
+              transform var(--motion-duration, 0.15s) var(--motion-easing, ease);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -281,7 +597,6 @@ main {
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.015em;
   line-height: 1.3;
 }
 
@@ -297,28 +612,29 @@ main {
   align-items: center;
   justify-content: space-between;
   padding-top: 0.85rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: var(--border-width, 1px) solid var(--border-subtle);
   font-size: 0.8rem;
   color: var(--text-muted);
 }
 
-/* Project Tag & Status Pills */
+/* Accent Patterns & Archetype Badges */
 .pill {
   display: inline-block;
   font-size: 0.72rem;
   font-family: var(--font-mono);
   font-weight: 600;
   padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--card-radius, var(--radius-sm));
   background-color: var(--bg-surface-elevated);
   color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
+  border: var(--border-width, 1px) solid var(--border-subtle);
+  transition: all var(--motion-duration, 0.15s) var(--motion-easing, ease);
 }
 
-.pill-track {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
-  border-color: rgba(59, 130, 246, 0.25);
+.pill-track, .badge-archetype, .accent-pattern-badge {
+  background-color: var(--accent-badge-bg);
+  color: var(--accent-badge-color);
+  border: var(--border-width, 1px) solid var(--accent-badge-border);
 }
 
 .pill-submitted {
@@ -333,11 +649,19 @@ main {
   border-color: var(--amber-border);
 }
 
+.archetype-glyph::before {
+  content: var(--accent-symbol, "⚡");
+  margin-right: 0.35rem;
+}
+
 /* Search & Filters Bar */
 .filter-bar {
   background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border: var(--border-width, 1px) solid var(--border-subtle);
+  border-radius: var(--card-radius, var(--radius-md));
+  box-shadow: var(--card-shadow, none);
+  backdrop-filter: var(--card-backdrop, none);
+  -webkit-backdrop-filter: var(--card-backdrop, none);
   padding: 1rem 1.25rem;
   margin-bottom: 1.75rem;
   display: flex;
@@ -361,13 +685,13 @@ main {
 .search-input {
   width: 100%;
   background-color: var(--bg-canvas);
-  border: 1px solid var(--border-muted);
-  border-radius: var(--radius-sm);
+  border: var(--border-width, 1px) solid var(--border-muted);
+  border-radius: var(--card-radius, var(--radius-sm));
   padding: 0.55rem 0.85rem;
   color: var(--text-primary);
   font-size: 0.9rem;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--motion-duration, 0.15s) var(--motion-easing, ease);
 }
 
 .search-input:focus {
@@ -383,7 +707,7 @@ main {
 
 .filter-chip {
   background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
+  border: var(--border-width, 1px) solid var(--border-subtle);
   color: var(--text-secondary);
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius-full);
@@ -391,7 +715,7 @@ main {
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--motion-duration, 0.15s) var(--motion-easing, ease);
 }
 
 .filter-chip:hover {
@@ -401,13 +725,26 @@ main {
 
 .filter-chip.active {
   background-color: var(--accent-primary);
-  color: #ffffff;
+  color: var(--bg-canvas);
   border-color: var(--accent-primary);
+}
+
+[data-theme="monolith"] .filter-chip.active {
+  color: #09090b;
+}
+[data-theme="arcade"] .filter-chip.active {
+  color: #ffffff;
+}
+[data-theme="cosmos"] .filter-chip.active {
+  color: #ffffff;
+}
+[data-theme="atelier"] .filter-chip.active {
+  color: #ffffff;
 }
 
 /* Deadline Status Alert */
 .alert-banner {
-  border-radius: var(--radius-md);
+  border-radius: var(--card-radius, var(--radius-md));
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
   display: flex;
@@ -429,9 +766,9 @@ main {
 }
 
 .alert-info {
-  background-color: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  color: #93c5fd;
+  background-color: var(--accent-badge-bg);
+  border: var(--border-width, 1px) solid var(--accent-badge-border);
+  color: var(--accent-badge-color);
 }
 
 /* Forms */
@@ -439,8 +776,11 @@ main {
   max-width: 640px;
   margin: 0 auto;
   background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
+  border: var(--border-width, 1px) solid var(--border-subtle);
+  border-radius: var(--card-radius, var(--radius-lg));
+  box-shadow: var(--card-shadow, none);
+  backdrop-filter: var(--card-backdrop, none);
+  -webkit-backdrop-filter: var(--card-backdrop, none);
   padding: 2rem;
 }
 
@@ -459,14 +799,15 @@ main {
 .form-input, .form-textarea, .form-select {
   width: 100%;
   background-color: var(--bg-canvas);
-  border: 1px solid var(--border-muted);
-  border-radius: var(--radius-sm);
+  border: var(--border-width, 1px) solid var(--border-muted);
+  border-radius: var(--card-radius, var(--radius-sm));
   padding: 0.6rem 0.85rem;
   color: var(--text-primary);
   font-size: 0.9rem;
   outline: none;
   font-family: inherit;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--motion-duration, 0.15s) var(--motion-easing, ease),
+              box-shadow var(--motion-duration, 0.15s) var(--motion-easing, ease);
 }
 
 .form-input:focus, .form-textarea:focus, .form-select:focus {
@@ -479,12 +820,57 @@ main {
   margin-top: 0.35rem;
 }
 
+/* Tables & Results Card */
+.table-card {
+  background-color: var(--bg-surface);
+  border: var(--border-width, 1px) solid var(--border-subtle);
+  border-radius: var(--card-radius, var(--radius-md));
+  box-shadow: var(--card-shadow, none);
+  backdrop-filter: var(--card-backdrop, none);
+  -webkit-backdrop-filter: var(--card-backdrop, none);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table-card th {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.75rem 1rem;
+  border-bottom: var(--border-width, 1px) solid var(--border-subtle);
+}
+
+.table-card td {
+  padding: 0.85rem 1rem;
+  border-bottom: var(--border-width, 1px) solid var(--border-subtle);
+  font-size: 0.9rem;
+}
+
+.table-card tr:last-child td {
+  border-bottom: none;
+}
+
+.table-card tr:hover td {
+  background-color: var(--bg-surface-active);
+}
+
 /* Footer */
 footer.app-footer {
-  border-top: 1px solid var(--border-subtle);
+  border-top: var(--border-width, 1px) solid var(--border-subtle);
   background-color: var(--bg-surface);
   padding: 1.5rem 0;
   margin-top: auto;
   font-size: 0.82rem;
   color: var(--text-muted);
+  transition: background-color var(--motion-duration, 0.2s) var(--motion-easing, ease),
+              border-color var(--motion-duration, 0.2s) var(--motion-easing, ease);
 }

@@ -30,11 +30,16 @@ def create_event(
             detail=f"An event with slug '{slug}' already exists.",
         )
 
+    theme_cfg = request.theme_config
+    if not theme_cfg:
+        from src.themes.morph import magic_morph
+        theme_cfg = magic_morph(event_name=request.title, event_purpose=request.description or "")
+
     event = Event(
         title=request.title.strip(),
         slug=slug,
         description=request.description,
-        theme_config=request.theme_config or {},
+        theme_config=theme_cfg,
         phase=request.phase or "pre-event",
         start_time=request.start_time,
         end_time=request.end_time,

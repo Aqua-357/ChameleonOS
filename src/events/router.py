@@ -121,16 +121,29 @@ def event_new_post(
     phase: str = Form("pre-event"),
     start_time: Optional[str] = Form(None),
     end_time: Optional[str] = Form(None),
+    archetype: Optional[str] = Form(None),
     user: User = Depends(require_role("organizer", "admin")),
     db: Session = Depends(get_db),
 ):
     parsed_start = parse_iso_datetime(start_time)
     parsed_end = parse_iso_datetime(end_time)
 
+    theme_cfg = None
+    if archetype and archetype != "auto":
+        from src.themes.archetypes import ARCHETYPES
+        if archetype in ARCHETYPES:
+            theme_cfg = {
+                "archetype": archetype,
+                "name": ARCHETYPES[archetype]["name"],
+                "description": ARCHETYPES[archetype]["description"],
+                "tokens": ARCHETYPES[archetype]["tokens"],
+            }
+
     req = EventCreateRequest(
         title=title,
         slug=slug,
         description=description,
+        theme_config=theme_cfg,
         phase=phase,
         start_time=parsed_start,
         end_time=parsed_end,

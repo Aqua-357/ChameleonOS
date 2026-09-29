@@ -7,7 +7,7 @@
   <div class="form-card">
     <div style="margin-bottom: 1.5rem;">
       <h2 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em;">Create Hackathon Event</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Define event schedule, submission deadlines, and metadata</p>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Define event schedule, submission deadlines, and adaptive visual theme</p>
     </div>
 
     {% if error %}
@@ -30,8 +30,36 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="description">Event Description</label>
-        <textarea class="form-textarea" id="description" name="description" rows="4" placeholder="Describe the objectives, eligibility, and challenges for this hackathon..."></textarea>
+        <label class="form-label" for="description">Event Description & Purpose</label>
+        <textarea class="form-textarea" id="description" name="description" rows="3" placeholder="Describe the objectives, theme, and challenges for this hackathon..."></textarea>
+        <div class="form-hint">Used by Magic Morph to deterministically infer the visual archetype</div>
+      </div>
+
+      <!-- Magic Morph Archetype Configuration Card -->
+      <div style="background-color: var(--bg-surface-elevated); border: var(--border-width, 1px) solid var(--border-subtle); border-radius: var(--card-radius, var(--radius-md)); padding: 1.25rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <label class="form-label" for="archetype" style="margin-bottom: 0; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🦎</span>
+            <span>Visual Archetype (Magic Morph)</span>
+          </label>
+          <span id="morph-badge" class="badge-archetype pill" style="font-size: 0.75rem;">Auto Deterministic</span>
+        </div>
+
+        <select class="form-select" id="archetype" name="archetype" style="margin-bottom: 0.75rem;">
+          <option value="auto" selected>✨ Auto (Magic Morph offline algorithm)</option>
+          <option value="verdant">🌿 Verdant (Deep forest, organic vitality, clean tech)</option>
+          <option value="cosmos">✨ Cosmos (Interstellar exploration, astrophysics, nebula)</option>
+          <option value="arcade">👾 Arcade (Retro 80s gaming, synthwave, neon chiptune)</option>
+          <option value="monolith">⬛ Monolith (Brutalist architectural precision, raw obsidian)</option>
+          <option value="bio">🧬 Bio (Synthetic biology, genomic lab, bioluminescence)</option>
+          <option value="atelier">⚜️ Atelier (Artisanal craftsmanship, editorial roasted umber)</option>
+        </select>
+
+        <div id="morph-preview-box" style="font-size: 0.82rem; color: var(--text-secondary); border-top: 1px dashed var(--border-subtle); padding-top: 0.65rem;">
+          <span style="color: var(--text-muted);">Inferred Archetype:</span>
+          <strong id="morph-preview-name" style="color: var(--text-primary); margin-left: 0.35rem;">Verdant</strong> &bull;
+          <span id="morph-preview-desc">Type an event title and purpose above to preview offline Magic Morph.</span>
+        </div>
       </div>
 
       <div class="form-group">
@@ -66,4 +94,54 @@
     </form>
   </div>
 </div>
+
+<script>
+  const titleInput = document.getElementById('title');
+  const descInput = document.getElementById('description');
+  const archetypeSelect = document.getElementById('archetype');
+  const previewName = document.getElementById('morph-preview-name');
+  const previewDesc = document.getElementById('morph-preview-desc');
+  const morphBadge = document.getElementById('morph-badge');
+
+  async function updateMorphPreview() {
+    const title = titleInput.value.trim() || "Hackathon";
+    const desc = descInput.value.trim() || "";
+    const selected = archetypeSelect.value;
+
+    if (selected !== 'auto') {
+      window.switchTheme(selected);
+      previewName.textContent = selected.toUpperCase();
+      previewDesc.textContent = "Explicitly chosen archetype applied.";
+      morphBadge.textContent = selected.toUpperCase();
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/v1/themes/magic-morph', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_name: title, event_purpose: desc })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        previewName.textContent = data.name;
+        previewDesc.textContent = data.description;
+        morphBadge.textContent = "Morphed: " + data.name;
+        window.switchTheme(data.archetype);
+      }
+    } catch (e) {
+      // offline fallback
+    }
+  }
+
+  let morphTimer = null;
+  function debounceMorph() {
+    clearTimeout(morphTimer);
+    morphTimer = setTimeout(updateMorphPreview, 250);
+  }
+
+  titleInput.addEventListener('input', debounceMorph);
+  descInput.addEventListener('input', debounceMorph);
+  archetypeSelect.addEventListener('change', updateMorphPreview);
+</script>
 {% endblock %}

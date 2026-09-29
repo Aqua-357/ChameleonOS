@@ -6,11 +6,16 @@
 <div style="margin-bottom: 2rem;">
   <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
     <div>
-      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
         <h1 class="page-title" style="margin-bottom: 0;">{{ event.title }}</h1>
         <span class="pill {% if event.phase == 'active' %}pill-submitted{% else %}pill-draft{% endif %}">
           {{ event.phase }}
         </span>
+        {% if event.theme_config and event.theme_config.get('archetype') %}
+        <span class="badge-archetype pill">
+          <span class="archetype-glyph"></span>{{ event.theme_config.get('name') or event.theme_config.get('archetype') }}
+        </span>
+        {% endif %}
       </div>
       <p class="page-subtitle"><code>slug: {{ event.slug }}</code></p>
     </div>
