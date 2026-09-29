@@ -11,7 +11,9 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
 
 from src.config import get_settings
-from src.database import engine, init_db
+from src.database import engine, init_db, SessionLocal
+from src.auth.service import seed_users, print_auth_headers
+from src.fixtures import load_fixtures
 from src.auth.router import router as auth_router
 from src.events.router import router as events_router
 from src.submissions.router import router as submissions_router
@@ -28,6 +30,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan context manager for startup and shutdown tasks."""
     # Ensure SQLite database schema and tables are initialized
     init_db()
+
+    # Seed users and print usable authentication headers to standard output
+    with SessionLocal() as db:
+        seed_data = seed_users(db)
+        print_auth_headers(seed_data)
+
+        # Idempotently load default fixtures if fixtures.json is present
+        fixtures_path = BASE_DIR.parent / "fixtures.json"
+        if fixtures_path.exists():
+            load_fixtures(fixtures_path, db)
+
     yield
 
 

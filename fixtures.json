@@ -1,0 +1,353 @@
+{
+  "users": [
+    {
+      "id": "usr_organizer",
+      "username": "organizer",
+      "email": "organizer@chameleon.local",
+      "password": "organizer_pass_2026",
+      "role": "organizer",
+      "is_active": true,
+      "created_at": "2026-09-29T08:00:00Z",
+      "updated_at": "2026-09-29T08:00:00Z"
+    },
+    {
+      "id": "usr_judge_a",
+      "username": "judge_a",
+      "email": "judge_a@chameleon.local",
+      "password": "judge_a_pass_2026",
+      "role": "judge",
+      "is_active": true,
+      "created_at": "2026-09-29T08:00:00Z",
+      "updated_at": "2026-09-29T08:00:00Z"
+    },
+    {
+      "id": "usr_judge_b",
+      "username": "judge_b",
+      "email": "judge_b@chameleon.local",
+      "password": "judge_b_pass_2026",
+      "role": "judge",
+      "is_active": true,
+      "created_at": "2026-09-29T08:00:00Z",
+      "updated_at": "2026-09-29T08:00:00Z"
+    },
+    {
+      "id": "usr_participant",
+      "username": "participant",
+      "email": "participant@chameleon.local",
+      "password": "participant_pass_2026",
+      "role": "participant",
+      "is_active": true,
+      "created_at": "2026-09-29T08:00:00Z",
+      "updated_at": "2026-09-29T08:00:00Z"
+    },
+    {
+      "id": "usr_hacker_2",
+      "username": "hacker_neo",
+      "email": "neo@chameleon.local",
+      "password": "neo_pass_2026",
+      "role": "participant",
+      "is_active": true,
+      "created_at": "2026-09-29T08:15:00Z",
+      "updated_at": "2026-09-29T08:15:00Z"
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_dogfood_2026",
+      "title": "DOGFOOD 2026 Hackathon",
+      "slug": "dogfood-2026",
+      "description": "The premier self-hosted adaptive hackathon engineering challenge.",
+      "phase": "judging",
+      "theme_config": {
+        "archetype": "verdant-terra",
+        "primary_color": "#10b981",
+        "secondary_color": "#064e3b",
+        "accent_color": "#34d399",
+        "dark_mode": true
+      },
+      "start_time": "2026-09-29T09:00:00Z",
+      "end_time": "2026-10-01T18:00:00Z",
+      "created_by_id": "usr_organizer",
+      "created_at": "2026-09-29T08:00:00Z",
+      "updated_at": "2026-09-29T08:00:00Z"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "trk_autonomous_agents",
+      "event_id": "evt_dogfood_2026",
+      "title": "Autonomous Agent Swarms",
+      "description": "Systems that collaborate across agentic workflows with zero human intervention.",
+      "created_at": "2026-09-29T08:05:00Z"
+    },
+    {
+      "id": "trk_adaptive_systems",
+      "event_id": "evt_dogfood_2026",
+      "title": "Chameleon Adaptive Platforms",
+      "description": "Self-modifying user interfaces and contextual theme engines.",
+      "created_at": "2026-09-29T08:05:00Z"
+    }
+  ],
+  "prizes": [
+    {
+      "id": "prz_grand_champion",
+      "event_id": "evt_dogfood_2026",
+      "track_id": null,
+      "title": "Grand Laureate Champion",
+      "description": "Awarded to the most robust and architecturally sound submission.",
+      "amount": "$10,000",
+      "created_at": "2026-09-29T08:10:00Z"
+    },
+    {
+      "id": "prz_best_agent",
+      "event_id": "evt_dogfood_2026",
+      "track_id": "trk_autonomous_agents",
+      "title": "Best Agent Workflow",
+      "description": "Outstanding execution of multi-agent orchestration.",
+      "amount": "$5,000",
+      "created_at": "2026-09-29T08:10:00Z"
+    }
+  ],
+  "teams": [
+    {
+      "id": "tm_neural_bloom",
+      "event_id": "evt_dogfood_2026",
+      "name": "Neural Bloom",
+      "slug": "neural-bloom",
+      "lead_id": "usr_participant",
+      "created_at": "2026-09-29T08:30:00Z"
+    },
+    {
+      "id": "tm_quantum_drift",
+      "event_id": "evt_dogfood_2026",
+      "name": "Quantum Drift",
+      "slug": "quantum-drift",
+      "lead_id": "usr_hacker_2",
+      "created_at": "2026-09-29T08:35:00Z"
+    }
+  ],
+  "team_members": [
+    {
+      "id": "tmb_1",
+      "team_id": "tm_neural_bloom",
+      "user_id": "usr_participant",
+      "role": "lead",
+      "joined_at": "2026-09-29T08:30:00Z"
+    },
+    {
+      "id": "tmb_2",
+      "team_id": "tm_quantum_drift",
+      "user_id": "usr_hacker_2",
+      "role": "lead",
+      "joined_at": "2026-09-29T08:35:00Z"
+    }
+  ],
+  "team_invites": [
+    {
+      "id": "inv_1",
+      "team_id": "tm_neural_bloom",
+      "inviter_id": "usr_participant",
+      "invitee_email": "prospective_hacker@chameleon.local",
+      "token": "tok_inv_neuralbloom_99812",
+      "status": "pending",
+      "created_at": "2026-09-29T08:45:00Z",
+      "expires_at": "2026-10-02T08:45:00Z"
+    }
+  ],
+  "projects": [
+    {
+      "id": "prj_aether_flow",
+      "event_id": "evt_dogfood_2026",
+      "team_id": "tm_neural_bloom",
+      "track_id": "trk_autonomous_agents",
+      "title": "AetherFlow Agent Swarm",
+      "tagline": "Hierarchical decentralized consensus for autonomous subagents.",
+      "description": "A fully self-hosted swarm coordination mechanism operating with zero external network connectivity.",
+      "repository_url": "https://github.com/Aqua-357/aetherflow-core",
+      "demo_url": "http://localhost:8000/demo/aetherflow",
+      "video_url": "http://localhost:8000/demo/aetherflow.mp4",
+      "submitted_at": "2026-09-29T09:30:00Z",
+      "is_submitted": true,
+      "created_at": "2026-09-29T08:40:00Z",
+      "updated_at": "2026-09-29T09:30:00Z"
+    },
+    {
+      "id": "prj_adaptive_hud",
+      "event_id": "evt_dogfood_2026",
+      "team_id": "tm_quantum_drift",
+      "track_id": "trk_adaptive_systems",
+      "title": "Chameleon Adaptive HUD",
+      "tagline": "Procedural context-driven styling engine.",
+      "description": "Zero-dependency CSS custom variable generation based on real-time event phase telemetry.",
+      "repository_url": "https://github.com/Aqua-357/adaptive-hud",
+      "demo_url": "http://localhost:8000/demo/hud",
+      "video_url": null,
+      "submitted_at": "2026-09-29T09:45:00Z",
+      "is_submitted": true,
+      "created_at": "2026-09-29T08:50:00Z",
+      "updated_at": "2026-09-29T09:45:00Z"
+    }
+  ],
+  "rubrics": [
+    {
+      "id": "rbc_standard_2026",
+      "event_id": "evt_dogfood_2026",
+      "name": "Standard DoraHacks & Devpost Weighted Rubric",
+      "description": "Multi-dimensional weighted scorecard for technical integrity, theme adherence, and polish.",
+      "created_at": "2026-09-29T08:15:00Z"
+    }
+  ],
+  "rubric_criteria": [
+    {
+      "id": "crt_technical_depth",
+      "rubric_id": "rbc_standard_2026",
+      "name": "Technical Depth & Architecture",
+      "description": "Code cleanliness, resiliency, modularity, and algorithmic complexity.",
+      "weight": 0.35,
+      "min_score": 1.0,
+      "max_score": 10.0,
+      "order_index": 1
+    },
+    {
+      "id": "crt_theme_alignment",
+      "rubric_id": "rbc_standard_2026",
+      "name": "Theme & Challenge Adherence",
+      "description": "Alignment with the adaptive event theme and track requirements.",
+      "weight": 0.25,
+      "min_score": 1.0,
+      "max_score": 10.0,
+      "order_index": 2
+    },
+    {
+      "id": "crt_ux_polish",
+      "rubric_id": "rbc_standard_2026",
+      "name": "User Experience & Aesthetics",
+      "description": "Intuitive flow, visual hierarchy, and performance responsiveness.",
+      "weight": 0.20,
+      "min_score": 1.0,
+      "max_score": 10.0,
+      "order_index": 3
+    },
+    {
+      "id": "crt_documentation",
+      "rubric_id": "rbc_standard_2026",
+      "name": "Documentation & Presentation",
+      "description": "Completeness of README, verifiable local execution, and clear diagrams.",
+      "weight": 0.20,
+      "min_score": 1.0,
+      "max_score": 10.0,
+      "order_index": 4
+    }
+  ],
+  "judge_assignments": [
+    {
+      "id": "asg_judge_a_prj1",
+      "event_id": "evt_dogfood_2026",
+      "judge_id": "usr_judge_a",
+      "project_id": "prj_aether_flow",
+      "status": "completed",
+      "created_at": "2026-09-29T09:50:00Z"
+    },
+    {
+      "id": "asg_judge_b_prj1",
+      "event_id": "evt_dogfood_2026",
+      "judge_id": "usr_judge_b",
+      "project_id": "prj_aether_flow",
+      "status": "completed",
+      "created_at": "2026-09-29T09:50:00Z"
+    },
+    {
+      "id": "asg_judge_a_prj2",
+      "event_id": "evt_dogfood_2026",
+      "judge_id": "usr_judge_a",
+      "project_id": "prj_adaptive_hud",
+      "status": "assigned",
+      "created_at": "2026-09-29T09:50:00Z"
+    }
+  ],
+  "judge_scores": [
+    {
+      "id": "scr_judge_a_crt1",
+      "assignment_id": "asg_judge_a_prj1",
+      "judge_id": "usr_judge_a",
+      "project_id": "prj_aether_flow",
+      "criterion_id": "crt_technical_depth",
+      "score": 9.5,
+      "feedback": "Outstanding zero-cloud consensus implementation.",
+      "created_at": "2026-09-29T10:00:00Z",
+      "updated_at": "2026-09-29T10:00:00Z"
+    },
+    {
+      "id": "scr_judge_b_crt1",
+      "assignment_id": "asg_judge_b_prj1",
+      "judge_id": "usr_judge_b",
+      "project_id": "prj_aether_flow",
+      "criterion_id": "crt_technical_depth",
+      "score": 9.5,
+      "feedback": "Agreed with Judge A - flawless architecture. Identical high score.",
+      "created_at": "2026-09-29T10:05:00Z",
+      "updated_at": "2026-09-29T10:05:00Z"
+    },
+    {
+      "id": "scr_judge_a_crt2",
+      "assignment_id": "asg_judge_a_prj1",
+      "judge_id": "usr_judge_a",
+      "project_id": "prj_aether_flow",
+      "criterion_id": "crt_theme_alignment",
+      "score": 9.0,
+      "feedback": "Strong adherence to autonomous agents track.",
+      "created_at": "2026-09-29T10:01:00Z",
+      "updated_at": "2026-09-29T10:01:00Z"
+    },
+    {
+      "id": "scr_judge_b_crt2",
+      "assignment_id": "asg_judge_b_prj1",
+      "judge_id": "usr_judge_b",
+      "project_id": "prj_aether_flow",
+      "criterion_id": "crt_theme_alignment",
+      "score": 9.0,
+      "feedback": "Identical rating for theme alignment.",
+      "created_at": "2026-09-29T10:06:00Z",
+      "updated_at": "2026-09-29T10:06:00Z"
+    },
+    {
+      "id": "scr_judge_a_crt3_missing",
+      "assignment_id": "asg_judge_a_prj2",
+      "judge_id": "usr_judge_a",
+      "project_id": "prj_adaptive_hud",
+      "criterion_id": "crt_ux_polish",
+      "score": null,
+      "feedback": "In-progress evaluation; score omitted deliberately to test tolerance of missing score entries.",
+      "created_at": "2026-09-29T10:10:00Z",
+      "updated_at": "2026-09-29T10:10:00Z"
+    }
+  ],
+  "audit_events": [
+    {
+      "id": "adt_sys_boot",
+      "event_type": "SYSTEM_INITIALIZATION",
+      "entity_type": "SYSTEM",
+      "entity_id": "SYS_0",
+      "user_id": "usr_organizer",
+      "payload": {
+        "version": "0.1.0",
+        "action": "database_seed_and_fixture_loaded"
+      },
+      "timestamp": "2026-09-29T08:00:00Z",
+      "ip_address": "127.0.0.1"
+    },
+    {
+      "id": "adt_project_submitted",
+      "event_type": "PROJECT_SUBMITTED",
+      "entity_type": "PROJECT",
+      "entity_id": "prj_aether_flow",
+      "user_id": "usr_participant",
+      "payload": {
+        "title": "AetherFlow Agent Swarm",
+        "team_id": "tm_neural_bloom"
+      },
+      "timestamp": "2026-09-29T09:30:00Z",
+      "ip_address": "127.0.0.1"
+    }
+  ]
+}
