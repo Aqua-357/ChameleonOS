@@ -6,14 +6,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from sqlalchemy.orm import Session
 
-from src.auth.models import User
-from src.events.models import Event, Track, Prize
-from src.submissions.models import Team, TeamMember, TeamInvite, Project
-from src.judging.models import Rubric, RubricCriterion, JudgeAssignment, JudgeScore
-from src.audit.models import AuditEvent
-from src.auth.service import hash_password
-
-
 def parse_iso_datetime(value: Any) -> Optional[datetime]:
     """Parse ISO formatted datetime string and ensure timezone-aware UTC datetime."""
     if value is None:
@@ -34,6 +26,14 @@ def parse_iso_datetime(value: Any) -> Optional[datetime]:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt.astimezone(timezone.utc)
     return None
+
+
+from src.auth.models import User
+from src.events.models import Event, Track, Prize
+from src.submissions.models import Team, TeamMember, TeamInvite, Project
+from src.judging.models import Rubric, RubricCriterion, JudgeAssignment, JudgeScore
+from src.audit.models import AuditEvent
+from src.auth.service import hash_password
 
 
 def load_fixtures(

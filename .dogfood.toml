@@ -1,0 +1,103 @@
+# ==============================================================================
+# ChameleonOS - DOGFOOD 2026 Official Acceptance Suite Configuration
+# Self-Hostable Adaptive Hackathon Platform
+# ==============================================================================
+
+[suite]
+name = "DOGFOOD 2026 Official Acceptance Suite"
+version = "1.0.0"
+target_url = "http://localhost:8000"
+offline_mode = true
+
+# ------------------------------------------------------------------------------
+# CHECK 1: Public Gallery
+# Public gallery must work without authentication.
+# ------------------------------------------------------------------------------
+[[checks]]
+id = "public_gallery"
+name = "public gallery"
+description = "Verify public gallery works without authentication"
+endpoint = "/gallery"
+method = "GET"
+auth_required = false
+expected_status = 200
+
+# ------------------------------------------------------------------------------
+# CHECK 2: Fixture Visibility
+# Fixture projects loaded from fixtures.json must be visible in public gallery.
+# ------------------------------------------------------------------------------
+[[checks]]
+id = "fixture_visibility"
+name = "fixture visibility"
+description = "Verify fixture projects are loaded and visible in public gallery"
+endpoint = "/api/v1/projects"
+method = "GET"
+auth_required = false
+expected_status = 200
+expected_fixture_id = "prj_dogfood_agent"
+
+# ------------------------------------------------------------------------------
+# CHECK 3: Closed Submission
+# Participant cannot submit after configured deadline.
+# ------------------------------------------------------------------------------
+[[checks]]
+id = "closed_submission"
+name = "closed submission"
+description = "Verify participant cannot submit after configured deadline"
+endpoint = "/api/v1/projects"
+method = "POST"
+auth_role = "participant"
+expected_status = 400
+
+# ------------------------------------------------------------------------------
+# CHECK 4: Judge Own Scores
+# A judge may read only their own score records.
+# ------------------------------------------------------------------------------
+[[checks]]
+id = "judge_own_scores"
+name = "judge own scores"
+description = "Verify judge can access their own score records"
+endpoint = "/api/v1/judging/projects/{project_id}/scores"
+method = "GET"
+auth_role = "judge_a"
+expected_status = 200
+
+# ------------------------------------------------------------------------------
+# CHECK 5: Judge Peer-Score Denial
+# A judge must never retrieve another judge's scores, even if other judge ID supplied.
+# ------------------------------------------------------------------------------
+[[checks]]
+id = "judge_peer_score_denial"
+name = "judge peer-score denial"
+description = "Verify judge is denied access to another judge's score records"
+endpoint = "/api/v1/judging/projects/{project_id}/scores"
+method = "GET"
+auth_role = "judge_a"
+expected_status = 403
+
+# ------------------------------------------------------------------------------
+# CHECK 6: Participant Judge-Score Denial
+# A participant must not access judge endpoints.
+# ------------------------------------------------------------------------------
+[[checks]]
+id = "participant_judge_score_denial"
+name = "participant judge-score denial"
+description = "Verify participant is forbidden from all judging endpoints"
+endpoint = "/api/v1/judging/queue"
+method = "GET"
+auth_role = "participant"
+expected_status = 403
+
+# ------------------------------------------------------------------------------
+# CHECK 7: Organizer CSV Export
+# An organizer can access aggregate results and CSV export.
+# ------------------------------------------------------------------------------
+[[checks]]
+id = "organizer_csv_export"
+name = "organizer CSV export"
+description = "Verify organizer can export CSV results"
+endpoint = "/api/v1/judging/events/{event_id}/export.csv"
+method = "GET"
+auth_role = "organizer"
+expected_status = 200
+content_type = "text/csv"
