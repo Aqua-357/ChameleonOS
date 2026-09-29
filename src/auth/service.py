@@ -43,7 +43,17 @@ SEED_USERS_CONFIG = [
         "password": "participant_pass_2026",
         "role": "participant",
     },
+    {
+        "id": "usr_admin",
+        "username": "admin",
+        "email": "admin@chameleon.local",
+        "password": "admin_pass_2026",
+        "role": "admin",
+    },
 ]
+
+SESSION_COOKIE_NAME = "chameleon_session"
+VALID_ROLES = {"visitor", "participant", "judge", "organizer", "admin"}
 
 
 def hash_password(password: str) -> str:
@@ -108,6 +118,61 @@ def decode_access_token(token: str, secret_key: Optional[str] = None) -> Optiona
         return payload
     except Exception:
         return None
+
+
+def register_user(
+    db: Session,
+    username: str,
+    email: str,
+    password: str,
+    role: str = "participant",
+) -> User:
+    """Register a new user with role validation."""
+    clean_username = username.strip().lower()
+    clean_email = email.strip().lower()
+    clean_role = role.strip().lower()
+
+    if clean_role not in VALID_ROLES:
+        clean_role = "participant"
+
+    existing = db.query(User).filter(
+        (User.username == clean_username) | (User.email == clean_email)
+    ).first()
+    if existing:
+        if existing.username == clean_username:
+            raise ValueError(f"Username '{clean_username}' is already taken.")
+        raise ValueError(f"Email '{clean_email}' is already registered.")
+
+    user = User(
+        username=clean_username,
+        email=clean_email,
+        hashed_password=hash_password(password),
+        role=clean_role,
+        is_active=True,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def authenticate_user(
+    db: Session,
+    username_or_email: str,
+    password: str,
+) -> Optional[User]:
+    """Authenticate user by username or email and verify password."""
+    clean_identifier = username_or_email.strip().lower()
+    user = db.query(User).filter(
+        (User.username == clean_identifier) | (User.email == clean_identifier)
+    ).first()
+    if not user:
+        return None
+    if not verify_password(password, user.hashed_password):
+        return None
+    if not user.is_active:
+        return None
+    return user
 
 
 def seed_users(db: Session) -> Dict[str, Dict[str, Any]]:

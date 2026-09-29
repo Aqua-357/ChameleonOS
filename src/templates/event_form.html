@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Create Event &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div style="max-width: 640px; margin: 2rem auto;">
+  <div class="form-card">
+    <div style="margin-bottom: 1.5rem;">
+      <h2 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em;">Create Hackathon Event</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Define event schedule, submission deadlines, and metadata</p>
+    </div>
+
+    {% if error %}
+    <div class="alert-banner alert-danger" style="margin-bottom: 1.25rem; font-size: 0.85rem;">
+      <span>⚠️</span>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/events/new">
+      <div class="form-group">
+        <label class="form-label" for="title">Event Title</label>
+        <input class="form-input" type="text" id="title" name="title" required placeholder="e.g. AI Agents Global Hackathon 2026">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="slug">URL Slug</label>
+        <input class="form-input" type="text" id="slug" name="slug" required placeholder="e.g. ai-agents-2026">
+        <div class="form-hint">Used for URL paths (e.g. /events/ai-agents-2026)</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="description">Event Description</label>
+        <textarea class="form-textarea" id="description" name="description" rows="4" placeholder="Describe the objectives, eligibility, and challenges for this hackathon..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="phase">Initial Phase</label>
+        <select class="form-select" id="phase" name="phase">
+          <option value="pre-event">pre-event (Registration & Teaming)</option>
+          <option value="active" selected>active (Submissions Open)</option>
+          <option value="closed">closed (Submissions Closed / In Judging)</option>
+        </select>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="start_time">Start Time (UTC)</label>
+          <input class="form-input" type="datetime-local" id="start_time" name="start_time">
+          <div class="form-hint">When hacking begins</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="end_time">Submission Deadline (UTC)</label>
+          <input class="form-input" type="datetime-local" id="end_time" name="end_time">
+          <div class="form-hint">Submissions strictly locked after this</div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+        <a href="/events" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          Publish Event
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

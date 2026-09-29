@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Public Project Gallery &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 class="page-title">Project Gallery</h1>
+      <p class="page-subtitle">Public showcase of hackathon projects and open-source submissions</p>
+    </div>
+    {% if user %}
+      <a href="/projects/new" class="btn btn-primary">+ Submit Project</a>
+    {% else %}
+      <a href="/login" class="btn btn-secondary">Sign in to Submit</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Search & Filtering Bar (Unauthenticated Public Access) -->
+<form method="GET" action="/gallery" class="filter-bar">
+  <div class="search-input-wrapper">
+    <input 
+      type="text" 
+      name="search" 
+      class="search-input" 
+      placeholder="Search projects by title, tagline, description, or team..." 
+      value="{{ search_query }}"
+    >
+  </div>
+
+  {% if active_event_id %}
+    <input type="hidden" name="event_id" value="{{ active_event_id }}">
+  {% endif %}
+
+  <div class="filter-chips">
+    <a href="/gallery{% if active_event_id %}?event_id={{ active_event_id }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
+       class="filter-chip {% if not active_track_id %}active{% endif %}">
+      All Tracks
+    </a>
+    {% for track in tracks %}
+      <a href="/gallery?track_id={{ track.id }}{% if active_event_id %}&event_id={{ active_event_id }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
+         class="filter-chip {% if active_track_id == track.id %}active{% endif %}">
+        {{ track.title }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+    Search
+  </button>
+  {% if search_query or active_track_id %}
+    <a href="/gallery" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; color: var(--text-muted);" title="Reset filters">
+      Clear
+    </a>
+  {% endif %}
+</form>
+
+<!-- Gallery Bento Grid -->
+{% if projects %}
+<div class="bento-grid">
+  {% for project in projects %}
+  <div class="card">
+    <div>
+      <div class="card-header">
+        <h3 class="card-title">{{ project.title }}</h3>
+        {% if project.track %}
+          <span class="pill pill-track">{{ project.track.title }}</span>
+        {% endif %}
+      </div>
+
+      {% if project.tagline %}
+        <p style="font-weight: 500; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">
+          {{ project.tagline }}
+        </p>
+      {% endif %}
+
+      <p class="card-desc">
+        {{ project.description or "No description provided." }}
+      </p>
+    </div>
+
+    <div>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+        {% if project.demo_url %}
+          <a href="{{ project.demo_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.25rem 0.65rem; font-size: 0.78rem;">
+            Demo &nearr;
+          </a>
+        {% endif %}
+        {% if project.repository_url %}
+          <a href="{{ project.repository_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.25rem 0.65rem; font-size: 0.78rem;">
+            Repository &nearr;
+          </a>
+        {% endif %}
+        {% if project.video_url %}
+          <a href="{{ project.video_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.25rem 0.65rem; font-size: 0.78rem;">
+            Video &nearr;
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="card-meta">
+        <div>
+          Team: <strong style="color: var(--text-primary);">{{ project.team.name if project.team else 'Solo' }}</strong>
+        </div>
+        <div>
+          {% if project.submitted_at %}
+            <span class="pill pill-submitted">Submitted</span>
+          {% else %}
+            <span class="pill pill-draft">Draft</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 4rem 2rem;">
+  <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+  <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">No submissions found</h3>
+  <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto 1.5rem;">
+    {% if search_query or active_track_id %}
+      No projects matched your search criteria. Try modifying your search query or track filter.
+    {% else %}
+      There are currently no submitted projects in the gallery. Be the first to build and submit!
+    {% endif %}
+  </p>
+  {% if search_query or active_track_id %}
+    <a href="/gallery" class="btn btn-secondary">Reset Filters</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

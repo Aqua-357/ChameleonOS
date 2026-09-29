@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+        <h1 class="page-title" style="margin-bottom: 0;">{{ event.title }}</h1>
+        <span class="pill {% if event.phase == 'active' %}pill-submitted{% else %}pill-draft{% endif %}">
+          {{ event.phase }}
+        </span>
+      </div>
+      <p class="page-subtitle"><code>slug: {{ event.slug }}</code></p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/gallery?event_id={{ event.id }}" class="btn btn-secondary">
+        Browse Submissions
+      </a>
+      {% if not is_closed %}
+        <a href="/teams/new?event_id={{ event.id }}" class="btn btn-secondary">
+          + Form Team
+        </a>
+        <a href="/projects/new?event_id={{ event.id }}" class="btn btn-primary">
+          + Start Project Draft
+        </a>
+      {% else %}
+        <span class="btn btn-secondary btn-disabled">
+          Submissions Closed
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if is_closed %}
+  <div class="alert-banner alert-danger">
+    <span style="font-size: 1.25rem;">🛑</span>
+    <div>
+      <strong>Submissions are Closed.</strong>
+      <div>The deadline for this event has passed ({{ event.end_time.strftime('%Y-%m-%d %H:%M UTC') if event.end_time else 'Phase closed' }}). No new submissions or edits can be accepted.</div>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert-banner alert-info">
+    <span style="font-size: 1.25rem;">⏱️</span>
+    <div>
+      <strong>Submissions are Open.</strong>
+      <div>
+        {% if event.end_time %}
+          Deadline: <strong>{{ event.end_time.strftime('%Y-%m-%d %H:%M UTC') }}</strong>. Submit your drafts before the deadline.
+        {% else %}
+          Open for submissions. No deadline specified.
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card" style="margin-bottom: 2rem;">
+    <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">About this Event</h3>
+    <p style="color: var(--text-secondary); line-height: 1.6;">
+      {{ event.description or "No detailed description provided for this event." }}
+    </p>
+    <div style="display: flex; gap: 2rem; margin-top: 1.25rem; font-size: 0.85rem; color: var(--text-muted);">
+      <div><strong>Starts:</strong> {{ event.start_time.strftime('%Y-%m-%d %H:%M UTC') if event.start_time else 'TBD' }}</div>
+      <div><strong>Deadline:</strong> {{ event.end_time.strftime('%Y-%m-%d %H:%M UTC') if event.end_time else 'None' }}</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+    <!-- Tracks -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700;">Challenge Tracks</h3>
+        <span class="pill pill-track">{{ event.tracks|length }} Tracks</span>
+      </div>
+
+      {% if event.tracks %}
+      <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+        {% for track in event.tracks %}
+        <div style="background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem;">
+          <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+            {{ track.title }}
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary);">
+            {{ track.description or "Open to all relevant submissions in this domain." }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="color: var(--text-muted); font-size: 0.85rem;">No tracks created yet for this event.</p>
+      {% endif %}
+    </div>
+
+    <!-- Prizes -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700;">Prizes & Awards</h3>
+        <span class="pill pill-submitted">{{ event.prizes|length }} Prizes</span>
+      </div>
+
+      {% if event.prizes %}
+      <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+        {% for prize in event.prizes %}
+        <div style="background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem; display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+              {{ prize.title }}
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary);">
+              {{ prize.description or "Granted upon final judging deliberations." }}
+            </div>
+          </div>
+          {% if prize.amount %}
+          <span class="pill pill-submitted" style="font-size: 0.8rem; margin-left: 0.5rem; white-space: nowrap;">
+            {{ prize.amount }}
+          </span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="color: var(--text-muted); font-size: 0.85rem;">No prizes configured yet for this event.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

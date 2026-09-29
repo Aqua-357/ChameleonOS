@@ -1,40 +1,151 @@
 {% extends "base.html" %}
 
-{% block title %}ChameleonOS - Foundation Ready{% endblock %}
+{% block title %}ChameleonOS &bull; Adaptive Hackathon Platform{% endblock %}
 
 {% block content %}
-<div class="card">
-  <h2>ChameleonOS Foundation</h2>
-  <p>Self-hostable hackathon submission and judging platform with an adaptive event theme system.</p>
+<!-- Hero Section -->
+<div style="padding: 2.5rem 0 3rem; text-align: left; max-width: 800px;">
+  <div style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: var(--bg-surface-elevated); border: 1px solid var(--border-muted); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 1.25rem;">
+    <span style="color: var(--emerald);">●</span> DOGFOOD 2026 SUBMISSION
+  </div>
+  <h1 style="font-size: 2.75rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.15; margin-bottom: 1rem; color: var(--text-primary);">
+    Adaptive Hackathon Platform &bull; ChameleonOS
+  </h1>
+  <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-secondary); margin-bottom: 2rem;">
+    A self-hostable, zero-cloud submission and judging platform engineered with SQLite, strict deadline enforcement, customizable tracks, and an unauthenticated public project showcase.
+  </p>
+  <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+    <a href="/gallery" class="btn btn-primary" style="padding: 0.65rem 1.25rem; font-size: 0.95rem;">
+      Explore Public Gallery &rarr;
+    </a>
+    <a href="/events" class="btn btn-secondary" style="padding: 0.65rem 1.25rem; font-size: 0.95rem;">
+      Browse Events
+    </a>
+    {% if user %}
+      <a href="/teams/new" class="btn btn-secondary" style="padding: 0.65rem 1.25rem; font-size: 0.95rem;">
+        + Create Team
+      </a>
+    {% else %}
+      <a href="/register" class="btn btn-secondary" style="padding: 0.65rem 1.25rem; font-size: 0.95rem;">
+        Register to Participate
+      </a>
+    {% endif %}
+  </div>
 </div>
 
-<div class="card">
-  <h2>Architecture Modules</h2>
-  <p>Repository foundation initialized for core domain layers:</p>
-  <div class="grid">
-    <div class="grid-item">
-      <h3>auth <span class="badge-outline">Ready</span></h3>
-      <p>Authentication and role-based access management.</p>
+<!-- Active Events Section -->
+<div style="margin-bottom: 3rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.25rem;">
+    <div>
+      <h2 style="font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em;">Hackathons & Competitions</h2>
+      <p style="color: var(--text-secondary); font-size: 0.88rem;">Current events open for participation and submission</p>
     </div>
-    <div class="grid-item">
-      <h3>events <span class="badge-outline">Ready</span></h3>
-      <p>Hackathon lifecycles and adaptive event theme system.</p>
+    <a href="/events" class="btn btn-secondary" style="font-size: 0.82rem; padding: 0.35rem 0.75rem;">
+      View All Events &rarr;
+    </a>
+  </div>
+
+  {% if events %}
+  <div class="bento-grid">
+    {% for event in events %}
+    <div class="card">
+      <div>
+        <div class="card-header">
+          <h3 class="card-title">
+            <a href="/events/{{ event.slug }}" style="color: inherit; text-decoration: none;">
+              {{ event.title }}
+            </a>
+          </h3>
+          <span class="pill {% if event.phase == 'active' %}pill-submitted{% else %}pill-draft{% endif %}">
+            {{ event.phase }}
+          </span>
+        </div>
+        <p class="card-desc">
+          {{ event.description or "No description provided." }}
+        </p>
+        {% if event.tracks %}
+        <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.85rem;">
+          {% for track in event.tracks %}
+            <span class="pill pill-track">{{ track.title }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="card-meta">
+        <span style="font-size: 0.78rem;">
+          {% if event.end_time %}
+            Deadline: {{ event.end_time.strftime('%b %d, %Y %H:%M UTC') }}
+          {% else %}
+            No deadline set
+          {% endif %}
+        </span>
+        <a href="/events/{{ event.slug }}" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
+          Details &rarr;
+        </a>
+      </div>
     </div>
-    <div class="grid-item">
-      <h3>submissions <span class="badge-outline">Ready</span></h3>
-      <p>Project submissions and artifact tracking.</p>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align: center; padding: 2.5rem 1.5rem;">
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">No active events found. Launch your first event with seed credentials.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Architecture Modules Status Grid -->
+<div style="margin-top: 3rem; border-top: 1px solid var(--border-subtle); padding-top: 2.5rem;">
+  <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem;">Platform Engine Modules</h2>
+  <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">Core architecture components engineered for self-hosting</p>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem;">
+    <div style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span style="font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem;">auth</span>
+        <span class="pill pill-submitted" style="font-size: 0.65rem;">Active T1</span>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary);">Roles (visitor, participant, judge, organizer, admin), cookie sessions & Bearer tokens.</p>
     </div>
-    <div class="grid-item">
-      <h3>judging <span class="badge-outline">Ready</span></h3>
-      <p>Weighted rubrics and multi-dimensional evaluations.</p>
+
+    <div style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span style="font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem;">events</span>
+        <span class="pill pill-submitted" style="font-size: 0.65rem;">Active T1</span>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary);">Configurable start & end time deadlines, challenge tracks, and prize specifications.</p>
     </div>
-    <div class="grid-item">
-      <h3>normalization <span class="badge-outline">Ready</span></h3>
-      <p>Z-score normalization and ranking algorithms.</p>
+
+    <div style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span style="font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem;">submissions</span>
+        <span class="pill pill-submitted" style="font-size: 0.65rem;">Active T1</span>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary);">Team formation, tokenized invite links, draft editing, strict deadline locking & public gallery.</p>
     </div>
-    <div class="grid-item">
-      <h3>audit <span class="badge-outline">Ready</span></h3>
-      <p>Tamper-evident audit logging and timeline integrity.</p>
+
+    <div style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span style="font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem;">judging</span>
+        <span class="pill pill-draft" style="font-size: 0.65rem;">Next T2</span>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary);">Weighted rubrics, criteria scores, and multi-dimensional judge assignments.</p>
+    </div>
+
+    <div style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span style="font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem;">normalization</span>
+        <span class="pill pill-draft" style="font-size: 0.65rem;">Next T2</span>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary);">Z-score normalization and ranking algorithms for cross-judge score calibration.</p>
+    </div>
+
+    <div style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span style="font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem;">audit</span>
+        <span class="pill pill-draft" style="font-size: 0.65rem;">Next T2</span>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary);">Tamper-evident audit trail logging changes, submissions, and evaluation timelines.</p>
     </div>
   </div>
 </div>

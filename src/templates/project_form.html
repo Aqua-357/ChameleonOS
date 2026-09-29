@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if project %}Edit Project &bull; {{ project.title }}{% else %}New Project Draft &bull; ChameleonOS{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 2rem auto;">
+  <div class="form-card">
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <h2 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em;">
+          {% if project %}Edit Project Draft{% else %}Create Project Draft{% endif %}
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
+          {% if project %}Update your project submission details and artifacts{% else %}Draft a project submission for your team{% endif %}
+        </p>
+      </div>
+      {% if project %}
+        {% if project.is_submitted %}
+          <span class="pill pill-submitted">Submitted</span>
+        {% else %}
+          <span class="pill pill-draft">Draft</span>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    {% if error %}
+    <div class="alert-banner alert-danger" style="margin-bottom: 1.25rem; font-size: 0.85rem;">
+      <span>⚠️</span>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    {% if is_closed %}
+    <div class="alert-banner alert-danger" style="margin-bottom: 1.5rem;">
+      <span style="font-size: 1.25rem;">🛑</span>
+      <div>
+        <strong>Submission Deadline Has Passed</strong>
+        <div style="font-size: 0.82rem; margin-top: 0.15rem;">
+          This event's submission window is officially closed. Final submissions are locked and can no longer be modified or accepted.
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% if project %}/projects/{{ project.id }}/edit{% else %}/projects/new{% endif %}">
+      {% if not project %}
+        <!-- Event Selection -->
+        <div class="form-group">
+          <label class="form-label" for="event_id">Hackathon Event</label>
+          <select class="form-select" id="event_id" name="event_id" required>
+            {% for ev in events %}
+              <option value="{{ ev.id }}">{{ ev.title }} (Phase: {{ ev.phase }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Team Selection -->
+        <div class="form-group">
+          <label class="form-label" for="team_id">Your Team</label>
+          {% if teams %}
+            <select class="form-select" id="team_id" name="team_id" required>
+              {% for t in teams %}
+                <option value="{{ t.id }}">{{ t.name }}</option>
+              {% endfor %}
+            </select>
+          {% else %}
+            <div style="background-color: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: var(--radius-sm); font-size: 0.85rem;">
+              You do not belong to any team yet.
+              <a href="/teams/new" style="color: var(--accent-primary); font-weight: 600; margin-left: 0.35rem;">Create a Team First &rarr;</a>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label class="form-label" for="title">Project Title</label>
+        <input class="form-input" type="text" id="title" name="title" required value="{{ project.title if project else '' }}" placeholder="e.g. Chameleon Adaptive Engine">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="track_id">Challenge Track</label>
+        <select class="form-select" id="track_id" name="track_id">
+          <option value="">-- General / No Track --</option>
+          {% for track in tracks %}
+            <option value="{{ track.id }}" {% if project and project.track_id == track.id %}selected{% endif %}>
+              {{ track.title }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="tagline">Short Tagline</label>
+        <input class="form-input" type="text" id="tagline" name="tagline" value="{{ project.tagline if project and project.tagline else '' }}" placeholder="One sentence summarizing your project">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="description">Full Description</label>
+        <textarea class="form-textarea" id="description" name="description" rows="5" placeholder="Detailed explanation of what your project accomplishes, technical stack, architecture, and impact...">{{ project.description if project and project.description else '' }}</textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="repository_url">Repository URL</label>
+          <input class="form-input" type="url" id="repository_url" name="repository_url" value="{{ project.repository_url if project and project.repository_url else '' }}" placeholder="https://github.com/org/repo">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="demo_url">Live Demo URL</label>
+          <input class="form-input" type="url" id="demo_url" name="demo_url" value="{{ project.demo_url if project and project.demo_url else '' }}" placeholder="https://demo.example.com">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="video_url">Video Pitch / Demo Link</label>
+        <input class="form-input" type="url" id="video_url" name="video_url" value="{{ project.video_url if project and project.video_url else '' }}" placeholder="https://youtube.com/watch?v=...">
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+        {% if project %}
+          {% if not is_closed %}
+            <button type="submit" name="action" value="save" class="btn btn-secondary">
+              Save Draft
+            </button>
+            <button type="submit" name="action" value="submit" class="btn btn-primary" onclick="return confirm('Ready to finalize and submit to judges? You can still update before deadline.')">
+              {% if project.is_submitted %}Update Submission{% else %}Submit to Judges{% endif %}
+            </button>
+          {% else %}
+            <button type="button" class="btn btn-secondary btn-disabled" disabled>
+              Editing Locked (Deadline Passed)
+            </button>
+            <button type="button" class="btn btn-primary btn-disabled" disabled>
+              Submission Closed
+            </button>
+          {% endif %}
+        {% else %}
+          <button type="submit" class="btn btn-primary" {% if not teams %}disabled{% endif %}>
+            Create Draft
+          </button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

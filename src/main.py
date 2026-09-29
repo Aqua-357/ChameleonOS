@@ -2,16 +2,17 @@
 
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncGenerator, Dict
+from typing import Any, AsyncGenerator, Dict, Optional
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from src.config import get_settings
-from src.database import engine, init_db, SessionLocal
+from src.database import engine, get_db, init_db, SessionLocal
 from src.auth.service import seed_users, print_auth_headers
 from src.fixtures import load_fixtures
 from src.auth.router import router as auth_router
@@ -82,25 +83,40 @@ async def health_check() -> Dict[str, Any]:
     }
 
 
+from src.auth.dependencies import get_optional_user
+from src.auth.models import User
+
+
 @app.get("/", response_class=HTMLResponse, tags=["system"])
-async def root_view(request: Request) -> HTMLResponse:
-    """Render landing page with system status."""
+async def root_view(
+    request: Request,
+    user: Optional[User] = Depends(get_optional_user),
+    db: Session = Depends(get_db),
+) -> HTMLResponse:
+    """Render landing page with active events, project stats, and current user status."""
+    from src.events.models import Event
+    from src.submissions.models import Project
+
+    events = db.query(Event).all()
+    recent_projects = db.query(Project).filter(Project.is_submitted.is_(True)).order_by(Project.submitted_at.desc()).limit(6).all()
+
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"request": request, "settings": settings},
+        context={
+            "request": request,
+            "settings": settings,
+            "user": user,
+            "events": events,
+            "recent_projects": recent_projects,
+        },
     )
 
 
-# Register domain routers under API prefix
-api_routers = [
-    auth_router,
-    events_router,
-    submissions_router,
-    judging_router,
-    normalization_router,
-    audit_router,
-]
-
-for router in api_routers:
-    app.include_router(router, prefix=settings.api_v1_str)
+# Register domain routers
+app.include_router(auth_router)
+app.include_router(events_router)
+app.include_router(submissions_router)
+app.include_router(judging_router, prefix=settings.api_v1_str)
+app.include_router(normalization_router, prefix=settings.api_v1_str)
+app.include_router(audit_router, prefix=settings.api_v1_str)

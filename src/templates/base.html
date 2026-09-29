@@ -8,15 +8,38 @@
   {% block head %}{% endblock %}
 </head>
 <body>
-  <header>
-    <div class="container header-content">
-      <a href="/" class="logo">
-        <span>🦎 ChameleonOS</span>
-        <span class="badge">DOGFOOD 2026</span>
-      </a>
-      <div class="status-pill">
-        <span class="status-dot"></span>
-        <span>System Ready</span>
+  <header class="app-header">
+    <div class="container nav-wrapper">
+      <div class="brand-group">
+        <a href="/" class="brand-link">
+          <span style="font-size: 1.25rem;">🦎</span>
+          <span>ChameleonOS</span>
+          <span class="brand-badge">2026</span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="/gallery" class="nav-link">Gallery</a>
+          <a href="/events" class="nav-link">Events</a>
+          {% if user %}
+            <a href="/teams/new" class="nav-link">+ Team</a>
+            <a href="/projects/new" class="nav-link">+ Project</a>
+            {% if user.role in ['organizer', 'admin'] %}
+              <a href="/events/new" class="nav-link">+ Event</a>
+            {% endif %}
+          {% endif %}
+        </nav>
+      </div>
+
+      <div class="user-nav">
+        {% if user %}
+          <span class="role-badge role-{{ user.role }}">{{ user.role }}</span>
+          <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">{{ user.username }}</span>
+          <a href="/logout" class="btn btn-secondary" style="padding: 0.3rem 0.7rem; font-size: 0.8rem;">Logout</a>
+        {% else %}
+          <span class="role-badge role-visitor">Visitor</span>
+          <a href="/login" class="nav-link">Sign In</a>
+          <a href="/register" class="btn btn-primary" style="padding: 0.35rem 0.8rem; font-size: 0.82rem;">Register</a>
+        {% endif %}
       </div>
     </div>
   </header>
@@ -27,9 +50,12 @@
     </div>
   </main>
 
-  <footer>
-    <div class="container">
+  <footer class="app-footer">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
       <p>ChameleonOS &copy; 2026 &bull; Self-Hostable Adaptive Hackathon Platform &bull; MIT License</p>
+      <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">
+        Zero External CDN &bull; SQLite Architecture
+      </div>
     </div>
   </footer>
 
