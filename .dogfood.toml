@@ -1,13 +1,21 @@
 # ==============================================================================
-# ChameleonOS - DOGFOOD 2026 Official Acceptance Suite Configuration
+# ChameleonOS - DOGFOOD 2026 Local Acceptance & Compatibility Configuration
 # Self-Hostable Adaptive Hackathon Platform
 # ==============================================================================
 
 [suite]
-name = "DOGFOOD 2026 Official Acceptance Suite"
+name = "DOGFOOD 2026 Local Compatibility Suite"
 version = "1.0.0"
 target_url = "http://localhost:8000"
 offline_mode = true
+
+[claims]
+tier_1 = true
+tier_2 = true
+tier_3 = false
+tier_4 = false
+normalization_proof_bonus = true
+product_innovation = "Adaptive Visual System (6 Archetypes & Magic Morph)"
 
 # ------------------------------------------------------------------------------
 # CHECK 1: Public Gallery

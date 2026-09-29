@@ -1,5 +1,8 @@
-#!/usr/bin/env python3
-"""Authoritative DOGFOOD 2026 Acceptance Runner.
+"""ChameleonOS Local Pre-Flight & DOGFOOD Compatibility Runner.
+
+NOTE: This is an internal local compatibility test script verifying the seven
+behavioral targets from the DOGFOOD specification. It is NOT the official
+organizer-supplied runner.
 
 Usage:
     python3 run.py .dogfood.toml > acceptance-report.txt
@@ -46,7 +49,7 @@ def login_user(client, username: str, password: str) -> Optional[str]:
 
 
 def run_dogfood_suite(config_path: Path) -> int:
-    """Execute authoritative DOGFOOD acceptance checks and stream formatted report to stdout."""
+    """Execute local DOGFOOD compatibility checks and stream formatted report to stdout."""
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
 
@@ -61,12 +64,13 @@ def run_dogfood_suite(config_path: Path) -> int:
 
     timestamp = datetime.now(timezone.utc).isoformat()
     log("=" * 80)
-    log("OFFICIAL DOGFOOD 2026 ACCEPTANCE REPORT")
+    log("CHAMELEONOS LOCAL PRE-FLIGHT COMPATIBILITY REPORT (DOGFOOD 2026)")
     log("=" * 80)
     log(f"Timestamp:       {timestamp}")
     log(f"Configuration:   {config_path.name}")
     log(f"Target URL:      {target_url}")
     log(f"Execution Mode:  {client_mode}")
+    log(f"Runner Type:     Local Emulation / Pre-Flight Suite (Not Organizer-Supplied)")
     log(f"Offline Mode:    True (Zero external CDN/API dependencies)")
     log("-" * 80)
 
@@ -340,19 +344,25 @@ def run_dogfood_suite(config_path: Path) -> int:
         log(f"  {status_tag} {name}")
     log("-" * 80)
 
-    log("\nCLAIMED TIERS:")
+    log("\nCLAIMED TIERS & BONUSES:")
     log("  [X] Tier 1: Core Platform Foundation (Auth, Teams, Submissions, Gallery, Deadlines)")
     log("  [X] Tier 2: Judging & Security (Rubrics, Scoring, Strict Isolation, CSV Export)")
-    log("  [X] Tier 3: Visual System & Normalization (6 Archetypes, Magic Morph, Z-Score Engine)")
+    log("  [ ] Tier 3: Public / Community Voting (NOT CLAIMED - Not Implemented)")
+    log("  [ ] Tier 4: Advanced Features (NOT CLAIMED - Not Implemented)")
+    log("  [X] Normalization Proof (+5 Bonus): Deterministic Cross-Judge Z-Score Engine (JUDGING.md)")
+    log("  [X] Product Innovation: Adaptive Visual System (6 Archetypes + Offline Magic Morph)")
     log("\nLIMITATIONS & ASSUMPTIONS:")
+    log("  - Runner Classification: Internal local compatibility verification.")
+    log("  - Official Certification: Awaits execution by official organizer-supplied test harness.")
     log("  - Zero external network access required (100% offline-first architecture).")
     log("  - Single SQLite persistence database mounted at ./data/chameleon.db.")
     log("-" * 80)
 
     if success:
-        log("\nACCEPTANCE VERDICT: ACCEPTED & CERTIFIED")
+        log("\nLOCAL VERIFICATION VERDICT: 7/7 COMPATIBILITY CHECKS PASSED")
+        log("STATUS: READY FOR OFFICIAL ORGANIZER DOGFOOD EVALUATION")
     else:
-        log("\nACCEPTANCE VERDICT: REJECTED (FAILURES DETECTED)")
+        log("\nLOCAL VERIFICATION VERDICT: FAILURES DETECTED")
     log("=" * 80 + "\n")
 
     return 0 if success else 1

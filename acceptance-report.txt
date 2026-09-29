@@ -1,10 +1,11 @@
 ================================================================================
-OFFICIAL DOGFOOD 2026 ACCEPTANCE REPORT
+CHAMELEONOS LOCAL PRE-FLIGHT COMPATIBILITY REPORT (DOGFOOD 2026)
 ================================================================================
-Timestamp:       2026-09-29T10:16:33.801683+00:00
+Timestamp:       2026-09-29T10:24:01.890000+00:00
 Configuration:   .dogfood.toml
 Target URL:      http://localhost:8000
 Execution Mode:  LIVE_HTTP
+Runner Type:     Local Emulation / Pre-Flight Suite (Not Organizer-Supplied)
 Offline Mode:    True (Zero external CDN/API dependencies)
 --------------------------------------------------------------------------------
 
@@ -18,8 +19,8 @@ Offline Mode:    True (Zero external CDN/API dependencies)
 [CHECK 2/7] Fixture Visibility
   Specification: Fixture projects loaded from fixtures.json visible in gallery
   Endpoint: GET /api/v1/projects
-  Total Projects Visible: 18
-  Sample Fixture ID: fb6069b0-590f-46fa-963e-94e577f02bf3
+  Total Projects Visible: 21
+  Sample Fixture ID: 7494d587-fa21-4f5c-86be-9b1ad33bed28
   Result: [PASS] - Seeded fixture projects visible in public gallery.
 
 [CHECK 3/7] Closed Submission
@@ -39,7 +40,7 @@ Offline Mode:    True (Zero external CDN/API dependencies)
 [CHECK 5/7] Judge Peer-Score Denial
   Specification: Judge must never retrieve another judge's score records
   Endpoint: GET /api/v1/judging/scores/{score_id}
-  Judge A reading Judge B score (64757fb8-9a41-4fe6-95fe-6d043681465a): HTTP 403
+  Judge A reading Judge B score (67ae966a-50a6-4264-8051-fa4fcc6684a3): HTTP 403
   Judge A spoofing judge_id=usr_judge_b: HTTP 403
   Result: [PASS] - Cross-judge score isolation verified (HTTP 403 Forbidden).
 
@@ -71,16 +72,22 @@ SUMMARY OF ACCEPTANCE CRITERIA:
   [PASS] organizer CSV export
 --------------------------------------------------------------------------------
 
-CLAIMED TIERS:
+CLAIMED TIERS & BONUSES:
   [X] Tier 1: Core Platform Foundation (Auth, Teams, Submissions, Gallery, Deadlines)
   [X] Tier 2: Judging & Security (Rubrics, Scoring, Strict Isolation, CSV Export)
-  [X] Tier 3: Visual System & Normalization (6 Archetypes, Magic Morph, Z-Score Engine)
+  [ ] Tier 3: Public / Community Voting (NOT CLAIMED - Not Implemented)
+  [ ] Tier 4: Advanced Features (NOT CLAIMED - Not Implemented)
+  [X] Normalization Proof (+5 Bonus): Deterministic Cross-Judge Z-Score Engine (JUDGING.md)
+  [X] Product Innovation: Adaptive Visual System (6 Archetypes + Offline Magic Morph)
 
 LIMITATIONS & ASSUMPTIONS:
+  - Runner Classification: Internal local compatibility verification.
+  - Official Certification: Awaits execution by official organizer-supplied test harness.
   - Zero external network access required (100% offline-first architecture).
   - Single SQLite persistence database mounted at ./data/chameleon.db.
 --------------------------------------------------------------------------------
 
-ACCEPTANCE VERDICT: ACCEPTED & CERTIFIED
+LOCAL VERIFICATION VERDICT: 7/7 COMPATIBILITY CHECKS PASSED
+STATUS: READY FOR OFFICIAL ORGANIZER DOGFOOD EVALUATION
 ================================================================================
 
