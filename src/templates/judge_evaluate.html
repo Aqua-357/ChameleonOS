@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluate &bull; {{ project.title }} &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+  <a href="/judging" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.82rem; margin-bottom: 1rem;">
+    &larr; Back to Judge Queue
+  </a>
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <h1 class="page-title" style="margin-bottom: 0;">{{ project.title }}</h1>
+        <span class="pill pill-track">{{ project.track.title if project.track else 'General' }}</span>
+      </div>
+      <p class="page-subtitle">Submitted by <strong>{{ project.team.name if project.team else 'Solo' }}</strong></p>
+    </div>
+
+    <div>
+      {% if assignment and assignment.status == 'completed' %}
+        <span class="pill pill-submitted">Status: Evaluated</span>
+      {% else %}
+        <span class="pill pill-draft">Status: Pending Evaluation</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if error %}
+<div class="alert-banner alert-danger" style="margin-bottom: 1.5rem;">
+  <span>⚠️</span>
+  <span>{{ error }}</span>
+</div>
+{% endif %}
+
+<!-- Project Artifacts & Overview -->
+<div class="card" style="margin-bottom: 2rem;">
+  <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">Project Overview</h3>
+  {% if project.tagline %}
+    <p style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">{{ project.tagline }}</p>
+  {% endif %}
+  <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.25rem;">
+    {{ project.description or "No full description provided." }}
+  </p>
+
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+    {% if project.demo_url %}
+      <a href="{{ project.demo_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 0.82rem;">
+        Live Demo &nearr;
+      </a>
+    {% endif %}
+    {% if project.repository_url %}
+      <a href="{{ project.repository_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.82rem;">
+        Source Repository &nearr;
+      </a>
+    {% endif %}
+    {% if project.video_url %}
+      <a href="{{ project.video_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.82rem;">
+        Video Pitch &nearr;
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Evaluation Form -->
+<form method="POST" action="/judging/projects/{{ project.id }}">
+  <div style="margin-bottom: 1.5rem;">
+    <h2 style="font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem;">
+      Rubric Evaluation
+    </h2>
+    <p style="color: var(--text-secondary); font-size: 0.88rem;">
+      Score each criterion based on the rubric scale. Criteria are weighted in final rankings.
+    </p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
+    {% for criterion in rubric.criteria %}
+    {% set existing = score_map.get(criterion.id) %}
+    <div class="card" style="padding: 1.25rem 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+        <div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">
+            {{ criterion.name }}
+          </h3>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem;">
+            {{ criterion.description or "Evaluate according to standard criteria." }}
+          </p>
+        </div>
+        <span class="pill pill-track" style="font-family: var(--font-mono); font-size: 0.78rem;">
+          Weight: {{ criterion.weight }}x
+        </span>
+      </div>
+
+      <div style="margin-top: 1rem; display: flex; align-items: center; gap: 1rem;">
+        <label for="criterion_{{ criterion.id }}" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); white-space: nowrap;">
+          Score ({{ criterion.min_score }} - {{ criterion.max_score }}):
+        </label>
+        <input 
+          type="number" 
+          id="criterion_{{ criterion.id }}" 
+          name="criterion_{{ criterion.id }}" 
+          class="form-input" 
+          style="max-width: 140px; font-weight: 700; font-family: var(--font-mono);" 
+          min="{{ criterion.min_score }}" 
+          max="{{ criterion.max_score }}" 
+          step="0.5" 
+          required 
+          value="{{ existing.score if existing and existing.score is not none else '' }}"
+          placeholder="e.g. 8.5"
+        >
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Qualitative Feedback / Comments -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem;">Evaluation Feedback & Comments</h3>
+    <p style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 0.85rem;">
+      Provide constructive observations, highlights, and suggestions for the team.
+    </p>
+    <textarea 
+      name="general_feedback" 
+      class="form-textarea" 
+      rows="4" 
+      placeholder="Strengths, architectural design comments, areas of improvement..."
+    >{{ general_feedback or '' }}</textarea>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+    <a href="/judging" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1.5rem;">
+      Submit Evaluation
+    </button>
+  </div>
+</form>
+{% endblock %}

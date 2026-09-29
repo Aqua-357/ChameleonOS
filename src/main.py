@@ -117,6 +117,6 @@ async def root_view(
 app.include_router(auth_router)
 app.include_router(events_router)
 app.include_router(submissions_router)
-app.include_router(judging_router, prefix=settings.api_v1_str)
+app.include_router(judging_router)
 app.include_router(normalization_router, prefix=settings.api_v1_str)
-app.include_router(audit_router, prefix=settings.api_v1_str)
+app.include_router(audit_router)

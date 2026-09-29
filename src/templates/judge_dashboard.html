@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Judge Dashboard &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+        <h1 class="page-title" style="margin-bottom: 0;">Judge Evaluation Queue</h1>
+        <span class="role-badge role-judge">Judge</span>
+      </div>
+      <p class="page-subtitle">Review and score assigned projects using event rubric criteria</p>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Metrics Card -->
+<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-elevated) 100%);">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+    <div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.05em;">
+        Judging Progress
+      </div>
+      <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin-top: 0.2rem;">
+        {{ completed_count }} / {{ total_assigned }} <span style="font-size: 1rem; font-weight: 500; color: var(--text-muted);">Projects Evaluated</span>
+      </div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-size: 1.75rem; font-weight: 800; color: {% if completion_percentage == 100 %}var(--emerald){% else %}var(--accent-primary){% endif %}; font-family: var(--font-mono);">
+        {{ completion_percentage }}%
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Completion Rate</div>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div style="width: 100%; height: 8px; background-color: var(--bg-canvas); border-radius: var(--radius-full); overflow: hidden; border: 1px solid var(--border-subtle);">
+    <div style="width: {{ completion_percentage }}%; height: 100%; background-color: {% if completion_percentage == 100 %}var(--emerald){% else %}var(--accent-primary){% endif %}; transition: width 0.3s ease;"></div>
+  </div>
+</div>
+
+<!-- Queue Items -->
+{% if queue %}
+<div class="bento-grid">
+  {% for item in queue %}
+  <div class="card">
+    <div>
+      <div class="card-header">
+        <h3 class="card-title">{{ item.project_title }}</h3>
+        <span class="pill {% if item.status == 'completed' %}pill-submitted{% else %}pill-draft{% endif %}">
+          {{ item.status }}
+        </span>
+      </div>
+
+      {% if item.project_tagline %}
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+          {{ item.project_tagline }}
+        </p>
+      {% endif %}
+
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+        <span class="pill pill-track">{{ item.track_title }}</span>
+        <span class="pill">Team: {{ item.team_name }}</span>
+      </div>
+    </div>
+
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.85rem; border-top: 1px solid var(--border-subtle); font-size: 0.82rem;">
+        <span style="color: var(--text-muted);">
+          Scored: <strong style="color: var(--text-primary);">{{ item.scored_criteria_count }} / {{ item.total_criteria_count }}</strong> criteria
+        </span>
+        <a href="/judging/projects/{{ item.project_id }}" class="btn {% if item.status == 'completed' %}btn-secondary{% else %}btn-primary{% endif %}" style="padding: 0.35rem 0.85rem; font-size: 0.82rem;">
+          {% if item.status == 'completed' %}Review / Edit &rarr;{% else %}Evaluate Project &rarr;{% endif %}
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 4rem 2rem;">
+  <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📋</div>
+  <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">No Projects Assigned</h3>
+  <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto;">
+    You do not have any projects assigned to your judging queue yet. Event organizers will assign submitted projects once submissions close.
+  </p>
+</div>
+{% endif %}
+{% endblock %}

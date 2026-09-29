@@ -21,6 +21,9 @@
           <a href="/gallery" class="nav-link">Gallery</a>
           <a href="/events" class="nav-link">Events</a>
           {% if user %}
+            {% if user.role in ['judge', 'organizer', 'admin'] %}
+              <a href="/judging" class="nav-link">Judging</a>
+            {% endif %}
             <a href="/teams/new" class="nav-link">+ Team</a>
             <a href="/projects/new" class="nav-link">+ Project</a>
             {% if user.role in ['organizer', 'admin'] %}

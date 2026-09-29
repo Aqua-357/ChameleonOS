@@ -19,6 +19,11 @@
       <a href="/gallery?event_id={{ event.id }}" class="btn btn-secondary">
         Browse Submissions
       </a>
+      {% if user and user.role in ['organizer', 'admin'] %}
+        <a href="/events/{{ event.slug }}/results" class="btn btn-secondary">
+          🏆 Results
+        </a>
+      {% endif %}
       {% if not is_closed %}
         <a href="/teams/new?event_id={{ event.id }}" class="btn btn-secondary">
           + Form Team
