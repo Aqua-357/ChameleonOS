@@ -1,0 +1,86 @@
+================================================================================
+OFFICIAL DOGFOOD 2026 ACCEPTANCE REPORT
+================================================================================
+Timestamp:       2026-09-29T10:16:33.801683+00:00
+Configuration:   .dogfood.toml
+Target URL:      http://localhost:8000
+Execution Mode:  LIVE_HTTP
+Offline Mode:    True (Zero external CDN/API dependencies)
+--------------------------------------------------------------------------------
+
+[CHECK 1/7] Public Gallery
+  Specification: Public gallery must work without authentication
+  Endpoints: GET /gallery and GET /api/v1/projects
+  GET /gallery: HTTP 200
+  GET /api/v1/projects: HTTP 200
+  Result: [PASS] - Gallery is completely open and unauthenticated.
+
+[CHECK 2/7] Fixture Visibility
+  Specification: Fixture projects loaded from fixtures.json visible in gallery
+  Endpoint: GET /api/v1/projects
+  Total Projects Visible: 18
+  Sample Fixture ID: fb6069b0-590f-46fa-963e-94e577f02bf3
+  Result: [PASS] - Seeded fixture projects visible in public gallery.
+
+[CHECK 3/7] Closed Submission
+  Specification: Participant cannot submit after configured deadline
+  Endpoint: POST /api/v1/projects/{project_id}/submit
+  Submit after deadline: HTTP 400
+  Response Detail: Submission closed: The deadline for this event has passed.
+  Result: [PASS] - Late submissions strictly rejected (HTTP 400).
+
+[CHECK 4/7] Judge Own Scores
+  Specification: Judge may read only their own score records
+  Endpoint: GET /api/v1/judging/scores/projects/{project_id}
+  Judge A retrieve own score: HTTP 200
+  Scores retrieved count: 1
+  Result: [PASS] - Judge can read their own score records.
+
+[CHECK 5/7] Judge Peer-Score Denial
+  Specification: Judge must never retrieve another judge's score records
+  Endpoint: GET /api/v1/judging/scores/{score_id}
+  Judge A reading Judge B score (64757fb8-9a41-4fe6-95fe-6d043681465a): HTTP 403
+  Judge A spoofing judge_id=usr_judge_b: HTTP 403
+  Result: [PASS] - Cross-judge score isolation verified (HTTP 403 Forbidden).
+
+[CHECK 6/7] Participant Judge-Score Denial
+  Specification: Participant must not access judge endpoints or scores
+  Endpoints: GET /api/v1/judging/queue, GET /api/v1/judging/scores/projects/{id}
+  Participant access /judging/queue: HTTP 403
+  Participant access /judging/scores: HTTP 403
+  Result: [PASS] - Participant access to judging routes strictly blocked (HTTP 403).
+
+[CHECK 7/7] Organizer CSV Export
+  Specification: Organizer can export CSV results; non-organizers denied
+  Endpoint: GET /api/v1/judging/events/{event_id}/export.csv
+  Organizer CSV download: HTTP 200 (text/csv; charset=utf-8)
+  Judge CSV download attempt: HTTP 403
+  Participant CSV download attempt: HTTP 403
+  Valid CSV Headers: Rank, Project Title, Team Name, Track...
+  Result: [PASS] - Organizer CSV export valid and permission-boundary enforced.
+
+================================================================================
+SUMMARY OF ACCEPTANCE CRITERIA:
+  Checks Passed: 7 / 7 (100.0%)
+  [PASS] public gallery
+  [PASS] fixture visibility
+  [PASS] closed submission
+  [PASS] judge own scores
+  [PASS] judge peer-score denial
+  [PASS] participant judge-score denial
+  [PASS] organizer CSV export
+--------------------------------------------------------------------------------
+
+CLAIMED TIERS:
+  [X] Tier 1: Core Platform Foundation (Auth, Teams, Submissions, Gallery, Deadlines)
+  [X] Tier 2: Judging & Security (Rubrics, Scoring, Strict Isolation, CSV Export)
+  [X] Tier 3: Visual System & Normalization (6 Archetypes, Magic Morph, Z-Score Engine)
+
+LIMITATIONS & ASSUMPTIONS:
+  - Zero external network access required (100% offline-first architecture).
+  - Single SQLite persistence database mounted at ./data/chameleon.db.
+--------------------------------------------------------------------------------
+
+ACCEPTANCE VERDICT: ACCEPTED & CERTIFIED
+================================================================================
+
