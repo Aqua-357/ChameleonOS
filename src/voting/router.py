@@ -247,7 +247,9 @@ def api_verify_email_token(
 # ==============================================================================
 
 @router.post("/api/v1/voting/campaigns/{campaign_id}/votes", response_model=VoteResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/api/v1/voting/campaigns/{campaign_id}/vote", response_model=VoteResponse, status_code=status.HTTP_201_CREATED)
 def api_cast_vote(
+
     campaign_id: str,
     req: VoteCastRequest,
     request: Request,
@@ -308,6 +310,7 @@ def api_get_campaign_results(
 # ==============================================================================
 
 @router.post("/api/v1/projects/{project_id}/comments", response_model=ProjectCommentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/api/v1/voting/projects/{project_id}/comments", response_model=ProjectCommentResponse, status_code=status.HTTP_201_CREATED)
 def api_create_comment(
     project_id: str,
     req: ProjectCommentCreateRequest,
@@ -327,6 +330,7 @@ def api_create_comment(
 
 
 @router.get("/api/v1/projects/{project_id}/comments", response_model=List[ProjectCommentResponse])
+@router.get("/api/v1/voting/projects/{project_id}/comments", response_model=List[ProjectCommentResponse])
 def api_list_comments(
     project_id: str,
     include_deleted: bool = Query(False),

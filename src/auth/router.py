@@ -1,7 +1,9 @@
 """Authentication API and HTML routes."""
 
+from typing import Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
+
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from sqlalchemy.orm import Session
@@ -71,9 +73,10 @@ def api_login(
 ):
     user = authenticate_user(
         db=db,
-        username_or_email=req.username_or_email,
+        username_or_email=req.identifier,
         password=req.password,
     )
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -123,11 +126,14 @@ def login_view(request: Request, user: User = Depends(get_optional_user)):
 @router.post("/login", response_class=HTMLResponse)
 def login_form_post(
     request: Request,
-    username_or_email: str = Form(...),
+    username_or_email: Optional[str] = Form(None),
+    username: Optional[str] = Form(None),
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    user = authenticate_user(db, username_or_email, password)
+    login_id = username_or_email or username or ""
+    user = authenticate_user(db, login_id, password)
+
     if not user:
         return templates.TemplateResponse(
             request=request,

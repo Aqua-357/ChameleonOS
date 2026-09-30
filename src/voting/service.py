@@ -87,7 +87,7 @@ def create_voting_campaign(
         access_mode=req.access_mode,
         voting_method=req.voting_method,
         results_visibility=req.results_visibility,
-        status="draft",
+        status=req.status or "draft",
     )
     db.add(campaign)
     db.commit()

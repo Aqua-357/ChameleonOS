@@ -12,8 +12,14 @@ class UserRegisterRequest(BaseModel):
 
 
 class UserLoginRequest(BaseModel):
-    username_or_email: str
+    username_or_email: Optional[str] = None
+    username: Optional[str] = None
     password: str
+
+    @property
+    def identifier(self) -> str:
+        return self.username_or_email or self.username or ""
+
 
 
 class UserResponse(BaseModel):

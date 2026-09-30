@@ -12,6 +12,7 @@ class VotingCampaignCreateRequest(BaseModel):
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     access_mode: str = Field(default="open", pattern="^(open|email|authenticated)$")
+    status: Optional[str] = Field(default="draft", pattern="^(draft|active|closed)$")
     voting_method: str = Field(default="single", pattern="^(single|approval)$")
     results_visibility: str = Field(default="public_after_close", pattern="^(public_after_close|organizers_only)$")
 
