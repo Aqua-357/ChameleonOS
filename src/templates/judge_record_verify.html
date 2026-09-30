@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Judge Record - ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="container py-8 max-w-3xl">
+  <div class="card p-8 text-center">
+    <div class="mb-6">
+      {% if result.valid %}
+        <div style="font-size: 3.5rem; color: var(--color-success, #10b981); margin-bottom: 0.5rem;">✓</div>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: 600; padding: 0.35rem 0.85rem; font-size: 0.95rem;">
+          CRYPTOGRAPHICALLY VERIFIED JUDGE RECORD
+        </span>
+      {% else %}
+        <div style="font-size: 3.5rem; color: var(--color-danger, #ef4444); margin-bottom: 0.5rem;">✕</div>
+        <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; font-weight: 600; padding: 0.35rem 0.85rem; font-size: 0.95rem;">
+          INVALID OR TAMPERED RECORD
+        </span>
+      {% endif %}
+    </div>
+
+    <h1 class="text-3xl font-bold mb-2">Judge Participation Certificate</h1>
+    <p class="text-muted mb-6">{{ result.detail }}</p>
+
+    {% if result.valid %}
+    <div class="card p-6 mb-6 text-left" style="background: var(--color-surface-sunken, rgba(0,0,0,0.05)); border: 1px solid var(--color-border);">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em;">Judge Name</div>
+          <div class="text-lg font-semibold" style="color: var(--color-text);">{{ result.judge_name }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em;">Hackathon Event</div>
+          <div class="text-lg font-semibold" style="color: var(--color-text);">{{ event.title if event else "ChameleonOS Hackathon" }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em;">Projects Evaluated</div>
+          <div class="text-lg font-semibold" style="color: var(--color-primary);">{{ result.total_evaluated }} Completed (100%)</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em;">Signed On</div>
+          <div class="text-sm font-medium" style="color: var(--color-text);">
+            {{ result.issued_at.strftime('%B %d, %Y - %H:%M UTC') if result.issued_at else "N/A" }}
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--color-border);">
+        <div class="text-xs text-muted mb-1" style="text-transform: uppercase; letter-spacing: 0.05em;">Cryptographic Signature (HMAC-SHA256)</div>
+        <div style="font-family: monospace; font-size: 0.8rem; word-break: break-all; background: var(--color-surface); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--color-border);">
+          {{ result.signature }}
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem;">
+        <details>
+          <summary class="text-xs text-muted" style="cursor: pointer; user-select: none;">View Canonical Verification Details</summary>
+          <div class="mt-2 text-xs font-mono p-3 rounded" style="background: var(--color-surface); border: 1px solid var(--color-border); word-break: break-all;">
+            Record ID: {{ record_id }}<br>
+            Verification Protocol: HMAC-SHA256 Canonical JSON Payload
+          </div>
+        </details>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="flex gap-4 justify-center">
+      <a href="/" class="btn btn-secondary">Return Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

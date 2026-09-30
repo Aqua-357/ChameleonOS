@@ -15,6 +15,8 @@ from src.submissions.schemas import (
     ProjectUpdateRequest,
     TeamCreateRequest,
 )
+from src.webhooks.service import emit_webhook
+
 
 
 def create_team(
@@ -146,7 +148,21 @@ def create_project_draft(
     db.add(project)
     db.commit()
     db.refresh(project)
+
+    emit_webhook(
+        db=db,
+        event_type="project.created",
+        event_id=project.event_id,
+        resource_id=project.id,
+        resource_data={
+            "project_id": project.id,
+            "title": project.title,
+            "team_id": project.team_id,
+        },
+    )
+
     return project
+
 
 
 def update_project_draft(
@@ -239,7 +255,23 @@ def submit_project(
 
     db.commit()
     db.refresh(project)
+
+    emit_webhook(
+        db=db,
+        event_type="project.submitted",
+        event_id=project.event_id,
+        resource_id=project.id,
+        resource_data={
+            "project_id": project.id,
+            "title": project.title,
+            "team_id": project.team_id,
+            "track_id": project.track_id,
+            "submitted_at": project.submitted_at.isoformat() if project.submitted_at else None,
+        },
+    )
+
     return project
+
 
 
 def list_public_projects(
@@ -280,3 +312,33 @@ def list_public_projects(
         )
 
     return query.order_by(Project.submitted_at.desc(), Project.created_at.desc()).all()
+
+
+def get_team(db: Session, team_id: str) -> Team:
+    """Retrieve team by ID."""
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found.")
+    return team
+
+
+def update_team(db: Session, team_id: str, request: "TeamUpdateRequest", user: User) -> Team:
+    """Update team name."""
+    team = get_team(db, team_id)
+    if user.role not in ["organizer", "admin"] and team.lead_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only team lead or organizer can update team.")
+
+    if request.name is not None:
+        team.name = request.name.strip()
+    db.commit()
+    db.refresh(team)
+    return team
+
+
+def get_project(db: Session, project_id: str) -> Project:
+    """Retrieve project by ID."""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
+    return project
+

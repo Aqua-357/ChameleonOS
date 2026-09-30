@@ -7,17 +7,18 @@
 
 ## 🌟 Overview
 
-ChameleonOS implements **T1, T2, and T3, plus the Normalization Proof bonus and an adaptive visual/theming system.**
+ChameleonOS implements **T1, T2, T3, and T4, plus the Normalization Proof bonus and an adaptive visual/theming system.**
 
-The platform is designed for zero-trust hackathon administration, team project submissions, secure multi-judge evaluations with deterministic score normalization, community choice voting with anti-abuse, and dynamic styling powered by an offline token engine.
+The platform is designed for zero-trust hackathon administration, team project submissions, secure multi-judge evaluations with deterministic score normalization, community choice voting with anti-abuse, complete REST/webhook extensibility, cryptographic awards and verifiable records, and dynamic styling powered by an offline token engine.
 
 ### Platform Capabilities & Claimed Tiers
 - **Tier 1 (Core Platform):** Complete role-based authentication, configurable events, tracks, prizes, teams, invite tokens, project drafting, public gallery with unauthenticated search/filter, and strict deadline enforcement.
 - **Tier 2 (Judging & Security):** Weighted rubrics, judge assignment queue, score submissions, strict judge isolation (no peer score leakage), organizer aggregate results, and RFC 4180 CSV export.
 - **Tier 3 (Public / Community Voting & Comments):** Configurable community voting campaigns (open link, email-gated with offline OTP, authenticated), project comments with organizer moderation, server-side anti-abuse (sliding-window rate limiting, duplicate ballot rejection), tamper-evident audit logging, deterministic randomized ballot ordering (server-derived seed), and strict result secrecy during active voting.
-- **Tier 4 (Advanced Features):** *Not implemented / Not claimed.*
+- **Tier 4 (Advanced Features):** Full REST API with OpenAPI specification (`/api/v1/openapi.json`), webhook event dispatching with HMAC-SHA256 signature verification (`X-Chameleon-Signature`) and delivery audit logging, tamper-verifiable certificates and awards (`/verify/certificate/{token}`) with high-fidelity printable views, cryptographically signed judge participation records (`/verify/judge/{record_id}`) issued upon 100% evaluation completion, embeddable zero-CDN responsive gallery widget (`/embed/gallery.js`), and bulk import/export for projects/teams with transactional rollback on errors.
 - **Normalization Proof (+5 Bonus):** Deterministic cross-judge Z-score normalization with benchmark rescaling, handling harsh/lenient graders, zero-variance evaluations, missing criteria, and unequal judge distributions (fully documented in [`JUDGING.md`](JUDGING.md)).
 - **Product Innovation:** Adaptive Visual System featuring 6 design archetypes (`verdant`, `cosmos`, `arcade`, `monolith`, `bio`, `atelier`) and deterministic offline **Magic Morph**.
+
 
 ### Core Tenets
 - **100% Offline & Zero-CDN:** Complete isolation from external networks. No external APIs, no external CDNs, no cloud telemetry, and zero third-party font/script downloads.

@@ -36,7 +36,20 @@
         <a href="/events/{{ event.slug }}/voting" class="btn btn-secondary">
           🗳️ Community Voting
         </a>
+        <a href="/events/{{ event.slug }}/certificates" class="btn btn-secondary">
+          📜 Certificates
+        </a>
+        <a href="/events/{{ event.slug }}/webhooks" class="btn btn-secondary">
+          🔔 Webhooks
+        </a>
+        <a href="/events/{{ event.slug }}/data" class="btn btn-secondary">
+          📦 Data Exchange
+        </a>
+        <a href="/events/{{ event.slug }}/embed" class="btn btn-secondary">
+          🌐 Embed Widget
+        </a>
       {% endif %}
+
       {% if not is_closed %}
         <a href="/teams/new?event_id={{ event.id }}" class="btn btn-secondary">
           + Form Team

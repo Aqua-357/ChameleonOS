@@ -15,10 +15,13 @@ from src.events.models import Event
 from src.events.schemas import (
     EventCreateRequest,
     EventResponse,
+    EventUpdateRequest,
     PrizeCreateRequest,
     PrizeResponse,
+    PrizeUpdateRequest,
     TrackCreateRequest,
     TrackResponse,
+    TrackUpdateRequest,
 )
 from src.events.service import (
     create_event,
@@ -26,6 +29,11 @@ from src.events.service import (
     create_track,
     get_event_by_id_or_slug,
     list_events,
+    list_prizes,
+    list_tracks,
+    update_event,
+    update_prize,
+    update_track,
 )
 from src.fixtures import parse_iso_datetime
 
@@ -62,6 +70,23 @@ def api_get_event(id_or_slug: str, db: Session = Depends(get_db)):
     return event
 
 
+@router.put("/api/v1/events/{id_or_slug}", response_model=EventResponse)
+def api_update_event(
+    id_or_slug: str,
+    req: EventUpdateRequest,
+    current_user: User = Depends(require_role("organizer", "admin")),
+    db: Session = Depends(get_db),
+):
+    """Update event configuration, metadata, or phase."""
+    return update_event(db, id_or_slug, req)
+
+
+@router.get("/api/v1/events/{event_id}/tracks", response_model=List[TrackResponse])
+def api_list_tracks(event_id: str, db: Session = Depends(get_db)):
+    """List challenge tracks for an event."""
+    return list_tracks(db, event_id)
+
+
 @router.post("/api/v1/events/{event_id}/tracks", response_model=TrackResponse, status_code=status.HTTP_201_CREATED)
 def api_create_track(
     event_id: str,
@@ -72,6 +97,24 @@ def api_create_track(
     return create_track(db, event_id, req)
 
 
+@router.put("/api/v1/events/{event_id}/tracks/{track_id}", response_model=TrackResponse)
+def api_update_track(
+    event_id: str,
+    track_id: str,
+    req: TrackUpdateRequest,
+    current_user: User = Depends(require_role("organizer", "admin")),
+    db: Session = Depends(get_db),
+):
+    """Update challenge track details."""
+    return update_track(db, event_id, track_id, req)
+
+
+@router.get("/api/v1/events/{event_id}/prizes", response_model=List[PrizeResponse])
+def api_list_prizes(event_id: str, db: Session = Depends(get_db)):
+    """List prizes configured for an event."""
+    return list_prizes(db, event_id)
+
+
 @router.post("/api/v1/events/{event_id}/prizes", response_model=PrizeResponse, status_code=status.HTTP_201_CREATED)
 def api_create_prize(
     event_id: str,
@@ -80,6 +123,18 @@ def api_create_prize(
     db: Session = Depends(get_db),
 ):
     return create_prize(db, event_id, req)
+
+
+@router.put("/api/v1/events/{event_id}/prizes/{prize_id}", response_model=PrizeResponse)
+def api_update_prize(
+    event_id: str,
+    prize_id: str,
+    req: PrizeUpdateRequest,
+    current_user: User = Depends(require_role("organizer", "admin")),
+    db: Session = Depends(get_db),
+):
+    """Update prize details."""
+    return update_prize(db, event_id, prize_id, req)
 
 
 # ==============================================================================

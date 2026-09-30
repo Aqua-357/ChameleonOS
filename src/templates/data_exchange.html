@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Data Exchange - {{ event.title }} - ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="container py-8">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-muted mb-1">{{ event.title }}</div>
+      <h1 class="text-3xl font-bold">Data Exchange & Bulk Transfer</h1>
+      <p class="text-muted">Import and export event projects, teams, scoring records, and complete JSON bundles.</p>
+    </div>
+    <div class="flex gap-3">
+      <a href="/events/{{ event.slug }}" class="btn btn-secondary">Back to Event</a>
+    </div>
+  </div>
+
+  {% if message %}
+    <div class="card p-4 mb-6" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #065f46;">
+      <strong>Success:</strong> {{ message }}
+    </div>
+  {% endif %}
+
+  {% if errors %}
+    <div class="card p-4 mb-6" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #991b1b;">
+      <strong>Import Failed (Transactional Rollback Triggered):</strong>
+      <ul class="list-disc pl-5 mt-2 space-y-1 text-sm">
+        {% for err in errors %}
+          <li>{{ err }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Bulk Export Section -->
+    <div class="card p-6">
+      <h2 class="text-xl font-bold mb-3">Bulk Data Exports</h2>
+      <p class="text-sm text-muted mb-6">
+        Download structured data for offline archiving, audit compliance, or external analysis.
+      </p>
+
+      <div class="space-y-4">
+        <div class="flex justify-between items-center p-3 rounded" style="background: var(--color-surface-sunken, #f8fafc); border: 1px solid var(--color-border);">
+          <div>
+            <div class="font-semibold text-sm">Projects CSV</div>
+            <div class="text-xs text-muted">All projects with tracks, descriptions, and repo links</div>
+          </div>
+          <a href="/api/v1/events/{{ event.id }}/export/projects.csv" class="btn btn-sm btn-secondary">Download CSV</a>
+        </div>
+
+        <div class="flex justify-between items-center p-3 rounded" style="background: var(--color-surface-sunken, #f8fafc); border: 1px solid var(--color-border);">
+          <div>
+            <div class="font-semibold text-sm">Teams CSV</div>
+            <div class="text-xs text-muted">All teams, leaders, and member counts</div>
+          </div>
+          <a href="/api/v1/events/{{ event.id }}/export/teams.csv" class="btn btn-sm btn-secondary">Download CSV</a>
+        </div>
+
+        <div class="flex justify-between items-center p-3 rounded" style="background: var(--color-surface-sunken, #f8fafc); border: 1px solid var(--color-border);">
+          <div>
+            <div class="font-semibold text-sm">Judge Scores CSV</div>
+            <div class="text-xs text-muted">Detailed scoring matrix by judge and criterion</div>
+          </div>
+          <a href="/api/v1/events/{{ event.id }}/export/scores.csv" class="btn btn-sm btn-secondary">Download CSV</a>
+        </div>
+
+        <div class="flex justify-between items-center p-3 rounded" style="background: var(--color-surface-sunken, #f8fafc); border: 1px solid var(--color-border);">
+          <div>
+            <div class="font-semibold text-sm">Community Votes CSV</div>
+            <div class="text-xs text-muted">All cast votes with timestamps and voter identifiers</div>
+          </div>
+          <a href="/api/v1/events/{{ event.id }}/export/votes.csv" class="btn btn-sm btn-secondary">Download CSV</a>
+        </div>
+
+        <div class="flex justify-between items-center p-3 rounded" style="background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.3);">
+          <div>
+            <div class="font-semibold text-sm text-primary">Complete Event Bundle (JSON)</div>
+            <div class="text-xs text-muted">Full hierarchical archive of all entities, rubrics, and logs</div>
+          </div>
+          <a href="/api/v1/events/{{ event.id }}/export/bundle.json" target="_blank" class="btn btn-sm btn-primary">Download JSON</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Import Section -->
+    <div class="card p-6">
+      <h2 class="text-xl font-bold mb-3">Bulk Projects Import</h2>
+      <p class="text-sm text-muted mb-4">
+        Import multiple projects and teams at once. All rows are validated first; if any row has an error, zero rows are imported.
+      </p>
+
+      <form action="/events/{{ event.slug }}/data/import" method="POST" enctype="multipart/form-data">
+        <div class="form-group mb-4">
+          <label class="form-label font-semibold">Format</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer text-sm">
+              <input type="radio" name="import_type" value="csv" checked> CSV Document
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-sm">
+              <input type="radio" name="import_type" value="json"> JSON Array
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="form-label font-semibold">File Upload</label>
+          <input type="file" name="file_upload" class="form-input">
+        </div>
+
+        <div class="form-group mb-6">
+          <label class="form-label font-semibold">Or Paste Raw Content</label>
+          <textarea name="raw_content" class="form-input font-mono text-xs w-full" rows="6" placeholder="title,team_name,track,tagline,description,demo_url,repository_url
+AI Assistant,Team Alpha,AI Track,Smart bot,Description here,https://demo.example.com,https://github.com/example"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full">Validate & Execute Bulk Import</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

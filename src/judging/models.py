@@ -116,3 +116,30 @@ class JudgeScore(Base):
 
     def __repr__(self) -> str:
         return f"<JudgeScore id={self.id} judge_id={self.judge_id} project_id={self.project_id} score={self.score}>"
+
+
+class JudgeParticipationRecord(Base):
+    __tablename__ = "judge_participation_records"
+
+    id = Column(String(64), primary_key=True, default=generate_uuid)
+    event_id = Column(String(64), ForeignKey("events.id", ondelete="CASCADE"), nullable=False)
+    judge_id = Column(String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    judge_name = Column(String(128), nullable=False)
+    judge_email = Column(String(255), nullable=False)
+    total_assigned = Column(Integer, nullable=False)
+    total_evaluated = Column(Integer, nullable=False)
+    canonical_payload = Column(Text, nullable=False)
+    signature = Column(String(128), nullable=False)
+    issued_at = Column(
+        UTCDateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    # Relationships
+    event = relationship("Event")
+    judge = relationship("User")
+
+    def __repr__(self) -> str:
+        return f"<JudgeParticipationRecord id={self.id} judge_id={self.judge_id} evaluated={self.total_evaluated}/{self.total_assigned}>"
+

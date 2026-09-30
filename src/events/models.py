@@ -45,8 +45,13 @@ class Event(Base):
     judge_assignments = relationship("JudgeAssignment", back_populates="event", cascade="all, delete-orphan")
     voting_campaigns = relationship("VotingCampaign", back_populates="event", cascade="all, delete-orphan")
 
+    @property
+    def organizer_id(self):
+        return self.created_by_id
+
     def __repr__(self) -> str:
         return f"<Event id={self.id} title={self.title} phase={self.phase}>"
+
 
 
 class Track(Base):

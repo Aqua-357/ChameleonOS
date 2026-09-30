@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Certificate of Achievement - {{ cert.recipient }}</title>
+  <style>
+    @page {
+      size: landscape A4;
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .cert-container {
+      width: 1000px;
+      height: 700px;
+      background: #ffffff;
+      border: 14px solid #1e293b;
+      padding: 2.5rem;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+    }
+    .cert-inner-border {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      border: 2px solid #94a3b8;
+      pointer-events: none;
+    }
+    .cert-header {
+      margin-top: 1rem;
+    }
+    .cert-badge {
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+    }
+    .cert-title {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+    .cert-subtitle {
+      font-size: 1.1rem;
+      color: #475569;
+      font-style: italic;
+    }
+    .cert-body {
+      margin: 2rem 0;
+    }
+    .cert-present {
+      font-size: 1rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 1rem;
+    }
+    .cert-recipient {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      border-bottom: 2px solid #cbd5e1;
+      display: inline-block;
+      padding: 0 2rem 0.5rem 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .cert-reason {
+      font-size: 1.25rem;
+      color: #334155;
+      max-width: 750px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .cert-award-highlight {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .cert-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 3rem 1rem 3rem;
+    }
+    .cert-sign-col {
+      text-align: center;
+      width: 240px;
+    }
+    .cert-sign-line {
+      border-bottom: 1.5px solid #475569;
+      margin-bottom: 0.5rem;
+      height: 40px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-family: cursive, serif;
+      font-size: 1.25rem;
+      color: #1e293b;
+    }
+    .cert-sign-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #64748b;
+    }
+    .cert-token-col {
+      text-align: center;
+      max-width: 300px;
+    }
+    .cert-token-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+    }
+    .cert-token-code {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #475569;
+      word-break: break-all;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+    .print-actions {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+    .print-btn {
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .print-btn:hover {
+      background: #1d4ed8;
+    }
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+        margin: 0;
+      }
+      .print-actions {
+        display: none !important;
+      }
+      .cert-container {
+        box-shadow: none;
+        border: 10px solid #1e293b;
+        width: 100%;
+        height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-actions">
+    <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+  </div>
+
+  <div class="cert-container">
+    <div class="cert-inner-border"></div>
+
+    <div class="cert-header">
+      <div class="cert-badge">ChameleonOS Verified Award</div>
+      <h1 class="cert-title">Certificate of Achievement</h1>
+      <p class="cert-subtitle">{{ event.title }}</p>
+    </div>
+
+    <div class="cert-body">
+      <p class="cert-present">This honor is proudly awarded to</p>
+      <div class="cert-recipient">{{ cert.recipient }}</div>
+      <p class="cert-reason">
+        in recognition of exemplary performance and outstanding accomplishment, receiving the distinction of
+        <br>
+        <span class="cert-award-highlight">{{ cert.award }}</span>
+      </p>
+    </div>
+
+    <div class="cert-footer">
+      <div class="cert-sign-col">
+        <div class="cert-sign-line">ChameleonOS Committee</div>
+        <div class="cert-sign-label">Organizing Body</div>
+      </div>
+
+      <div class="cert-token-col">
+        <div class="cert-token-label">Cryptographic Verification Token</div>
+        <div class="cert-token-code">{{ cert.verification_token }}</div>
+        <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 4px;">
+          Issued: {{ cert.issued_at.strftime('%Y-%m-%d') if cert.issued_at else "N/A" }}
+        </div>
+      </div>
+
+      <div class="cert-sign-col">
+        <div class="cert-sign-line">{{ cert.issued_at.strftime('%B %d, %Y') if cert.issued_at else "N/A" }}</div>
+        <div class="cert-sign-label">Date of Issuance</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

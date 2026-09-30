@@ -11,6 +11,11 @@ class TeamCreateRequest(BaseModel):
     slug: Optional[str] = None
 
 
+class TeamUpdateRequest(BaseModel):
+    name: Optional[str] = Field(None, min_length=2, max_length=128)
+
+
+
 class TeamMemberResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

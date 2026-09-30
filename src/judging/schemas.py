@@ -182,3 +182,35 @@ class EventResultsResponse(BaseModel):
     event_title: str
     total_projects: int
     results: List[ProjectResultItem] = []
+
+
+# ==============================================================================
+# JUDGE PARTICIPATION RECORD SCHEMAS
+# ==============================================================================
+
+class JudgeRecordResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    event_id: str
+    judge_id: str
+    judge_name: str
+    judge_email: str
+    total_assigned: int
+    total_evaluated: int
+    canonical_payload: str
+    signature: str
+    issued_at: datetime
+    verification_url: Optional[str] = None
+
+
+class JudgeRecordVerifyResponse(BaseModel):
+    valid: bool
+    record_id: Optional[str] = None
+    event_id: Optional[str] = None
+    judge_name: Optional[str] = None
+    total_evaluated: Optional[int] = None
+    issued_at: Optional[datetime] = None
+    signature: Optional[str] = None
+    detail: Optional[str] = None
+

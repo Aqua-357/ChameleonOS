@@ -22,15 +22,19 @@ from src.submissions.schemas import (
     TeamInviteResponse,
     TeamMemberResponse,
     TeamResponse,
+    TeamUpdateRequest,
 )
 from src.submissions.service import (
     accept_team_invite,
     create_project_draft,
     create_team,
     create_team_invite,
+    get_project,
+    get_team,
     list_public_projects,
     submit_project,
     update_project_draft,
+    update_team,
 )
 
 router = APIRouter(tags=["submissions"])
@@ -79,6 +83,23 @@ def api_create_team(
     return create_team(db, req, lead_user=current_user)
 
 
+@router.get("/api/v1/teams/{team_id}", response_model=TeamResponse)
+def api_get_team(team_id: str, db: Session = Depends(get_db)):
+    """Retrieve details for a specific team."""
+    return get_team(db, team_id)
+
+
+@router.put("/api/v1/teams/{team_id}", response_model=TeamResponse)
+def api_update_team(
+    team_id: str,
+    req: TeamUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update team name (Team lead or Organizer only)."""
+    return update_team(db, team_id, req, current_user)
+
+
 @router.post("/api/v1/teams/{team_id}/invites", response_model=TeamInviteResponse, status_code=status.HTTP_201_CREATED)
 def api_create_invite(
     team_id: str,
@@ -108,6 +129,11 @@ def api_join_team(
 # ==============================================================================
 # JSON API ENDPOINTS - PROJECT DRAFTS & SUBMISSION (WITH DEADLINE ENFORCEMENT)
 # ==============================================================================
+
+@router.get("/api/v1/projects/{project_id}", response_model=ProjectResponse)
+def api_get_project(project_id: str, db: Session = Depends(get_db)):
+    """Retrieve single project by ID (public access)."""
+    return get_project(db, project_id)
 
 @router.post("/api/v1/projects", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 def api_create_draft(

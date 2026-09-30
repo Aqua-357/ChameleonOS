@@ -61,3 +61,26 @@ class EventResponse(BaseModel):
     created_by_id: Optional[str] = None
     tracks: List[TrackResponse] = []
     prizes: List[PrizeResponse] = []
+
+
+class EventUpdateRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=3, max_length=128)
+    slug: Optional[str] = Field(None, min_length=3, max_length=64)
+    description: Optional[str] = None
+    theme_config: Optional[Dict[str, Any]] = None
+    phase: Optional[str] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+
+
+class TrackUpdateRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=2, max_length=128)
+    description: Optional[str] = None
+
+
+class PrizeUpdateRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=2, max_length=128)
+    track_id: Optional[str] = None
+    description: Optional[str] = None
+    amount: Optional[str] = None
+

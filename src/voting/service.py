@@ -21,6 +21,8 @@ from src.voting.schemas import (
     VotingCampaignCreateRequest,
     VotingCampaignUpdateRequest,
 )
+from src.webhooks.service import emit_webhook
+
 
 
 # ==============================================================================
@@ -647,7 +649,20 @@ def cast_vote(
         },
     )
 
+    emit_webhook(
+        db=db,
+        event_type="vote.cast",
+        event_id=campaign.event_id,
+        resource_id=vote.id,
+        resource_data={
+            "vote_id": vote.id,
+            "campaign_id": campaign.id,
+            "project_id": project_id,
+        },
+    )
+
     return vote
+
 
 
 # ==============================================================================
@@ -796,7 +811,21 @@ def add_project_comment(
         payload={"project_id": project_id, "comment_length": len(clean_body)},
     )
 
+    emit_webhook(
+        db=db,
+        event_type="comment.created",
+        event_id=project.event_id,
+        resource_id=comment.id,
+        resource_data={
+            "comment_id": comment.id,
+            "project_id": project_id,
+            "author_id": user.id,
+            "author_name": user.username,
+        },
+    )
+
     return comment
+
 
 
 def list_project_comments(

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Embeddable Gallery Widget - {{ event.title }} - ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="container py-8">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-muted mb-1">{{ event.title }}</div>
+      <h1 class="text-3xl font-bold">Embeddable Gallery Widget</h1>
+      <p class="text-muted">Embed your hackathon project showcase onto any website, portal, or CMS.</p>
+    </div>
+    <div class="flex gap-3">
+      <a href="/events/{{ event.slug }}" class="btn btn-secondary">Back to Event</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="card p-6">
+      <h2 class="text-xl font-bold mb-3">Embed Code Snippet</h2>
+      <p class="text-sm text-muted mb-4">
+        Paste this HTML code snippet anywhere on your website. It operates completely offline or self-hosted, with zero third-party CDN scripts or trackers.
+      </p>
+
+      <div class="mb-4">
+        <textarea id="embed-snippet" class="form-input font-mono text-xs w-full" rows="5" readonly style="background: var(--color-surface-sunken, #f8fafc);">{{ snippet }}</textarea>
+      </div>
+
+      <button onclick="navigator.clipboard.writeText(document.getElementById('embed-snippet').value); this.innerText = 'Copied to Clipboard!'; setTimeout(() => this.innerText = 'Copy Code Snippet', 2000);" class="btn btn-primary w-full">
+        Copy Code Snippet
+      </button>
+    </div>
+
+    <div class="card p-6">
+      <h2 class="text-xl font-bold mb-3">Customization Options</h2>
+      <ul class="text-sm text-muted space-y-2">
+        <li><strong><code>data-limit="12"</code>:</strong> Specify max projects to display (1 to 50).</li>
+        <li><strong><code>data-theme="verdant"</code>:</strong> Matches your preferred theme colors.</li>
+        <li><strong>Zero CDN:</strong> Works locally in isolated networks without internet access.</li>
+        <li><strong>Responsive:</strong> Auto-fits full width with responsive grid cards.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Live Preview -->
+  <div class="card p-8">
+    <h2 class="text-xl font-bold mb-4">Live Widget Preview</h2>
+    <div id="chameleon-gallery-widget" data-event-id="{{ event.id }}" data-base-url="{{ base_url }}"></div>
+  </div>
+</div>
+<script src="{{ base_url }}/embed/gallery.js" async></script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Certificates - {{ event.title }} - ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="container py-8">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-muted mb-1">{{ event.title }}</div>
+      <h1 class="text-3xl font-bold">Certificates & Awards</h1>
+      <p class="text-muted">Issue tamper-verifiable certificates with cryptographic tokens.</p>
+    </div>
+    <div class="flex gap-3">
+      <a href="/events/{{ event.slug }}" class="btn btn-secondary">Back to Event</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Issue New Certificate Form -->
+    <div class="card p-6">
+      <h2 class="text-xl font-bold mb-4">Issue Certificate</h2>
+      <form action="/events/{{ event.slug }}/certificates" method="POST">
+        <div class="form-group mb-4">
+          <label class="form-label font-semibold">Recipient Name / Team</label>
+          <input type="text" name="recipient" class="form-input" placeholder="e.g. Alice Walker or Team Quantum" required>
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="form-label font-semibold">Award / Distinction</label>
+          <input type="text" name="award" class="form-input" placeholder="e.g. 1st Place Overall or Best UI Design" required>
+        </div>
+
+        <div class="form-group mb-6">
+          <label class="form-label font-semibold">Associated Project (Optional)</label>
+          <select name="project_id" class="form-input">
+            <option value="">-- None / Individual Award --</option>
+            {% for proj in projects %}
+              <option value="{{ proj.id }}">{{ proj.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full">Generate & Issue Certificate</button>
+      </form>
+    </div>
+
+    <!-- Issued Certificates Table -->
+    <div class="lg:col-span-2 card p-6">
+      <h2 class="text-xl font-bold mb-4">Issued Certificates ({{ certificates|length }})</h2>
+
+      {% if certificates %}
+      <div class="table-responsive">
+        <table class="table w-full">
+          <thead>
+            <tr>
+              <th>Recipient</th>
+              <th>Award</th>
+              <th>Status</th>
+              <th>Issued</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cert in certificates %}
+            <tr>
+              <td class="font-semibold">{{ cert.recipient }}</td>
+              <td>{{ cert.award }}</td>
+              <td>
+                {% if cert.status == "valid" %}
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Valid</span>
+                {% else %}
+                  <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">Revoked</span>
+                {% endif %}
+              </td>
+              <td class="text-xs text-muted">{{ cert.issued_at.strftime('%Y-%m-%d') if cert.issued_at else '' }}</td>
+              <td>
+                <div class="flex gap-2">
+                  <a href="/certificates/{{ cert.id }}/printable" target="_blank" class="btn btn-xs btn-outline">Print</a>
+                  <a href="/verify/certificate/{{ cert.verification_token }}" target="_blank" class="btn btn-xs btn-secondary">Verify</a>
+                  {% if cert.status == "valid" %}
+                  <form action="/events/{{ event.slug }}/certificates/{{ cert.id }}/revoke" method="POST" onsubmit="return confirm('Are you sure you want to revoke this certificate?');" style="display:inline;">
+                    <button type="submit" class="btn btn-xs" style="color: #ef4444; border: 1px solid #ef4444; background: transparent;">Revoke</button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-12 text-muted">
+        <p>No certificates have been issued for this event yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

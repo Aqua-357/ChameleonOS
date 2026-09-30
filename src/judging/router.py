@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from src.auth.dependencies import get_current_user, require_role
+from src.auth.dependencies import get_current_user, get_optional_user, require_role
 from src.auth.models import User
 from src.database import get_db
 from src.events.models import Event
@@ -22,6 +22,8 @@ from src.judging.schemas import (
     JudgeInviteRequest,
     JudgeInviteResponse,
     JudgeQueueItemResponse,
+    JudgeRecordResponse,
+    JudgeRecordVerifyResponse,
     JudgeScoreResponse,
     JudgingProgressResponse,
     ProjectScoreSubmissionRequest,
@@ -33,7 +35,9 @@ from src.judging.service import (
     calculate_event_results,
     create_assignment,
     create_or_update_rubric,
+    generate_judge_participation_record,
     generate_results_csv,
+    get_judge_participation_record,
     get_judging_progress,
     get_or_create_default_rubric,
     get_judge_queue,
@@ -41,9 +45,11 @@ from src.judging.service import (
     get_score_by_id,
     invite_or_register_judge,
     submit_project_scores,
+    verify_judge_participation_record,
     verify_judge_project_access,
 )
 from src.submissions.models import Project
+
 
 router = APIRouter(tags=["judging"])
 
@@ -446,3 +452,105 @@ def html_event_results(
             "progress": progress_data,
         },
     )
+
+
+# ==============================================================================
+# 5. SIGNED JUDGE PARTICIPATION RECORDS (T4.4)
+# ==============================================================================
+
+@router.post("/api/v1/judging/events/{event_id}/judges/{judge_id}/record", response_model=JudgeRecordResponse, status_code=status.HTTP_201_CREATED)
+def api_issue_judge_record(
+    event_id: str,
+    judge_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate and cryptographically sign a participation record (organizer, admin, or the judge themself)."""
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found.")
+
+    is_organizer = current_user.role in ["organizer", "admin"] or event.organizer_id == current_user.id
+    is_self = current_user.id == judge_id
+
+    if not (is_organizer or is_self):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized to issue judge record.")
+
+    record = generate_judge_participation_record(db, event_id, judge_id)
+    return JudgeRecordResponse(
+        id=record.id,
+        event_id=record.event_id,
+        judge_id=record.judge_id,
+        judge_name=record.judge_name,
+        judge_email=record.judge_email,
+        total_assigned=record.total_assigned,
+        total_evaluated=record.total_evaluated,
+        canonical_payload=record.canonical_payload,
+        signature=record.signature,
+        issued_at=record.issued_at,
+        verification_url=f"/verify/judge/{record.id}",
+    )
+
+
+@router.get("/api/v1/judging/records/{record_id}", response_model=JudgeRecordResponse)
+def api_get_judge_record(
+    record_id: str,
+    db: Session = Depends(get_db),
+):
+    """Retrieve judge participation record details."""
+    record = get_judge_participation_record(db, record_id)
+    return JudgeRecordResponse(
+        id=record.id,
+        event_id=record.event_id,
+        judge_id=record.judge_id,
+        judge_name=record.judge_name,
+        judge_email=record.judge_email,
+        total_assigned=record.total_assigned,
+        total_evaluated=record.total_evaluated,
+        canonical_payload=record.canonical_payload,
+        signature=record.signature,
+        issued_at=record.issued_at,
+        verification_url=f"/verify/judge/{record.id}",
+    )
+
+
+@router.get("/api/v1/judging/records/verify/{record_id}", response_model=JudgeRecordVerifyResponse)
+@router.get("/api/v1/judging/records/{record_id}/verify", response_model=JudgeRecordVerifyResponse)
+def api_verify_judge_record(
+    record_id: str,
+    db: Session = Depends(get_db),
+):
+    """Cryptographically verify judge participation record."""
+    res = verify_judge_participation_record(db, record_id)
+    return JudgeRecordVerifyResponse(**res)
+
+
+@router.get("/verify/judge/{record_id}", response_class=HTMLResponse)
+def html_verify_judge_record(
+    record_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+):
+    """Public verification page for signed judge participation record."""
+    from src.config import get_settings
+    settings = get_settings()
+
+    res = verify_judge_participation_record(db, record_id)
+    event = None
+    if res.get("valid") and res.get("event_id"):
+        event = db.query(Event).filter(Event.id == res["event_id"]).first()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="judge_record_verify.html",
+        context={
+            "request": request,
+            "settings": settings,
+            "user": user,
+            "result": res,
+            "record_id": record_id,
+            "event": event,
+        },
+    )
+

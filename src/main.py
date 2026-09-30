@@ -23,6 +23,11 @@ from src.normalization.router import router as normalization_router
 from src.audit.router import router as audit_router
 from src.themes.router import router as themes_router
 from src.voting.router import router as voting_router
+from src.webhooks.router import router as webhooks_router
+from src.certificates.router import router as certificates_router
+from src.embed.router import router as embed_router
+from src.data_exchange.router import router as data_exchange_router
+
 
 settings = get_settings()
 BASE_DIR = Path(__file__).resolve().parent
@@ -83,6 +88,12 @@ async def health_check() -> Dict[str, Any]:
         "environment": settings.app_env,
         "database": db_status,
     }
+
+
+@app.get("/api/v1/openapi.json", tags=["system"], include_in_schema=False)
+async def get_openapi_spec() -> Dict[str, Any]:
+    """Retrieve OpenAPI documentation specification."""
+    return app.openapi()
 
 
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -159,3 +170,8 @@ app.include_router(normalization_router)
 app.include_router(audit_router)
 app.include_router(themes_router)
 app.include_router(voting_router)
+app.include_router(webhooks_router)
+app.include_router(certificates_router)
+app.include_router(embed_router)
+app.include_router(data_exchange_router)
+

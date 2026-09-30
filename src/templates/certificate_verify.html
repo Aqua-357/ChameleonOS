@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Certificate - ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="container py-8 max-w-3xl">
+  <div class="card p-8 text-center">
+    <div class="mb-6">
+      {% if result.valid %}
+        <div style="font-size: 3.5rem; color: var(--color-success, #10b981); margin-bottom: 0.5rem;">✓</div>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: 600; padding: 0.35rem 0.85rem; font-size: 0.95rem;">
+          OFFICIALLY VERIFIED CERTIFICATE
+        </span>
+      {% else %}
+        <div style="font-size: 3.5rem; color: var(--color-danger, #ef4444); margin-bottom: 0.5rem;">✕</div>
+        <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; font-weight: 600; padding: 0.35rem 0.85rem; font-size: 0.95rem;">
+          INVALID OR REVOKED CERTIFICATE
+        </span>
+      {% endif %}
+    </div>
+
+    <h1 class="text-3xl font-bold mb-2">{{ result.award or "Certificate Verification" }}</h1>
+    <p class="text-muted mb-6">{{ result.detail }}</p>
+
+    {% if result.valid %}
+    <div class="card p-6 mb-6 text-left" style="background: var(--color-surface-sunken, rgba(0,0,0,0.05)); border: 1px solid var(--color-border);">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em;">Awarded To</div>
+          <div class="text-lg font-semibold" style="color: var(--color-text);">{{ result.recipient }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em;">Hackathon Event</div>
+          <div class="text-lg font-semibold" style="color: var(--color-text);">{{ result.event_title }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em;">Honored Award</div>
+          <div class="text-lg font-semibold" style="color: var(--color-primary);">{{ result.award }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em;">Date Issued</div>
+          <div class="text-sm font-medium" style="color: var(--color-text);">
+            {{ result.issued_at.strftime('%B %d, %Y') if result.issued_at else "N/A" }}
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--color-border); font-family: monospace; font-size: 0.8rem; word-break: break-all;" class="text-muted">
+        <strong>Verification Token:</strong> {{ token }}
+      </div>
+    </div>
+
+    <div class="flex gap-4 justify-center">
+      <a href="/certificates/{{ result.certificate_id }}/printable" target="_blank" class="btn btn-primary">
+        Print Certificate
+      </a>
+      <a href="/" class="btn btn-secondary">
+        Return Home
+      </a>
+    </div>
+    {% else %}
+    <div class="flex gap-4 justify-center">
+      <a href="/" class="btn btn-secondary">Return Home</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

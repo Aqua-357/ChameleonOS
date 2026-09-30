@@ -1,7 +1,10 @@
 """Judging service implementing weighted rubrics, assignments, score submission, isolation, and CSV export."""
 
 import csv
+import hashlib
+import hmac
 import io
+import json
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 from fastapi import HTTPException, status
@@ -10,8 +13,16 @@ from sqlalchemy.orm import Session
 from src.audit.service import log_audit_event
 from src.auth.models import User
 from src.auth.service import hash_password, register_user
+from src.config import get_settings
 from src.events.models import Event
-from src.judging.models import JudgeAssignment, JudgeScore, Rubric, RubricCriterion
+from src.judging.models import (
+    JudgeAssignment,
+    JudgeParticipationRecord,
+    JudgeScore,
+    Rubric,
+    RubricCriterion,
+)
+from src.webhooks.service import emit_webhook
 from src.judging.schemas import (
     AutoAssignResponse,
     EventResultsResponse,
@@ -237,7 +248,17 @@ def create_assignment(
         user_id=assigner_id,
         payload={"judge_id": judge_id, "project_id": project_id, "event_id": event_id},
     )
+
+    emit_webhook(
+        db=db,
+        event_type="judge.assigned",
+        event_id=event_id,
+        resource_id=assignment.id,
+        resource_data={"judge_id": judge_id, "project_id": project_id, "assignment_id": assignment.id},
+    )
+
     return assignment
+
 
 
 def auto_assign_projects(
@@ -468,7 +489,20 @@ def submit_project_scores(
         ip_address=ip_address,
     )
 
+    emit_webhook(
+        db=db,
+        event_type="score.submitted",
+        event_id=project.event_id,
+        resource_id=project_id,
+        resource_data={
+            "project_id": project_id,
+            "judge_id": judge_user.id,
+            "scores_count": len(saved_scores),
+        },
+    )
+
     return saved_scores
+
 
 
 def get_project_scores_for_user(
@@ -720,3 +754,165 @@ def generate_results_csv(db: Session, event_id: str) -> str:
         writer.writerow(row)
 
     return output.getvalue()
+
+
+# ==============================================================================
+# 7. SIGNED JUDGE PARTICIPATION RECORDS
+# ==============================================================================
+
+def generate_judge_participation_record(
+    db: Session,
+    event_id: str,
+    judge_id: str,
+) -> JudgeParticipationRecord:
+    """Generate and cryptographically sign a participation record for a judge upon completing evaluations."""
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found.")
+
+    judge = db.query(User).filter(User.id == judge_id).first()
+    if not judge:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Judge not found.")
+
+    assignments = db.query(JudgeAssignment).filter(
+        JudgeAssignment.event_id == event_id,
+        JudgeAssignment.judge_id == judge_id,
+    ).all()
+
+    total_assigned = len(assignments)
+    if total_assigned == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Judge has no assigned projects for this event.",
+        )
+
+    completed_assignments = [a for a in assignments if a.status == "completed"]
+    total_evaluated = len(completed_assignments)
+
+    if total_evaluated < total_assigned:
+        pending = total_assigned - total_evaluated
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Judge has pending evaluations ({pending} remaining). Record can only be issued upon 100% completion.",
+        )
+
+    settings = get_settings()
+    now_utc = datetime.now(timezone.utc)
+
+    # Canonical dictionary format with sorted keys and compact serialization
+    canonical_data = {
+        "event_id": event.id,
+        "event_title": event.title,
+        "issued_at": now_utc.isoformat(),
+        "judge_email": judge.email,
+        "judge_id": judge.id,
+        "judge_name": judge.username,
+        "total_assigned": total_assigned,
+        "total_evaluated": total_evaluated,
+    }
+    canonical_payload = json.dumps(canonical_data, sort_keys=True, separators=(",", ":"))
+    signature = hmac.new(
+        settings.secret_key.encode("utf-8"),
+        canonical_payload.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+    record = db.query(JudgeParticipationRecord).filter(
+        JudgeParticipationRecord.event_id == event_id,
+        JudgeParticipationRecord.judge_id == judge_id,
+    ).first()
+
+    if not record:
+        record = JudgeParticipationRecord(
+            event_id=event.id,
+            judge_id=judge.id,
+            judge_name=judge.username,
+            judge_email=judge.email,
+            total_assigned=total_assigned,
+            total_evaluated=total_evaluated,
+            canonical_payload=canonical_payload,
+            signature=signature,
+            issued_at=now_utc,
+        )
+        db.add(record)
+    else:
+        record.judge_name = judge.username
+        record.judge_email = judge.email
+        record.total_assigned = total_assigned
+        record.total_evaluated = total_evaluated
+        record.canonical_payload = canonical_payload
+        record.signature = signature
+        record.issued_at = now_utc
+
+    db.commit()
+    db.refresh(record)
+
+    log_audit_event(
+        db=db,
+        event_type="JUDGE_RECORD_ISSUED",
+        entity_type="JudgeParticipationRecord",
+        entity_id=record.id,
+        user_id=judge.id,
+        payload={
+            "judge_id": judge.id,
+            "event_id": event.id,
+            "total_evaluated": total_evaluated,
+            "signature": signature,
+        },
+    )
+
+    emit_webhook(
+        db=db,
+        event_type="judge.record_issued",
+        event_id=event.id,
+        resource_id=record.id,
+        resource_data={
+            "record_id": record.id,
+            "judge_id": judge.id,
+            "judge_name": judge.username,
+            "total_evaluated": total_evaluated,
+            "signature": signature,
+        },
+    )
+
+    return record
+
+
+def get_judge_participation_record(db: Session, record_id: str) -> JudgeParticipationRecord:
+    """Retrieve judge participation record by ID."""
+    record = db.query(JudgeParticipationRecord).filter(JudgeParticipationRecord.id == record_id).first()
+    if not record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Judge record not found.")
+    return record
+
+
+def verify_judge_participation_record(db: Session, record_id: str) -> Dict[str, Any]:
+    """Cryptographically verify the authenticity and signature of a judge record."""
+    record = db.query(JudgeParticipationRecord).filter(JudgeParticipationRecord.id == record_id).first()
+    if not record:
+        return {
+            "valid": False,
+            "record_id": record_id,
+            "detail": "Record not found.",
+        }
+
+    settings = get_settings()
+    expected_sig = hmac.new(
+        settings.secret_key.encode("utf-8"),
+        record.canonical_payload.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+    is_valid = hmac.compare_digest(record.signature, expected_sig)
+
+    return {
+        "valid": is_valid,
+        "record_id": record.id,
+        "event_id": record.event_id,
+        "judge_name": record.judge_name,
+        "total_evaluated": record.total_evaluated,
+        "issued_at": record.issued_at,
+        "signature": record.signature,
+        "detail": "Participation record is authentic and verified." if is_valid else "Cryptographic signature mismatch - record has been tampered with.",
+    }
+

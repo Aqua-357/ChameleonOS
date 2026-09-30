@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Webhooks Management &bull; {{ event.title }} &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+        <h1 class="page-title" style="margin-bottom: 0;">Webhooks & Event Streams</h1>
+        <span class="role-badge role-organizer">Organizer Access</span>
+      </div>
+      <p class="page-subtitle">{{ event.title }} &bull; Real-time lifecycle subscriptions with HMAC-SHA256 signatures</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="/events/{{ event.slug }}" class="btn btn-secondary">
+        &larr; Back to Event
+      </a>
+      <a href="/events/{{ event.slug }}/voting" class="btn btn-secondary">
+        🗳️ Voting
+      </a>
+      <a href="/events/{{ event.slug }}/results" class="btn btn-secondary">
+        🏆 Results
+      </a>
+    </div>
+  </div>
+</div>
+
+{% if success %}
+<div class="alert-banner alert-success" style="margin-bottom: 1.5rem;">
+  <span>✓</span>
+  <div><strong>Success:</strong> {{ success }}</div>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="alert-banner alert-danger" style="margin-bottom: 1.5rem;">
+  <span>⚠️</span>
+  <div><strong>Notice:</strong> {{ error }}</div>
+</div>
+{% endif %}
+
+<!-- Split Grid: Endpoint Registration & Configured Subscriptions -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+  
+  <!-- Left: Register Endpoint Form -->
+  <div class="card" style="padding: 1.5rem;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Register Webhook Target</h2>
+    <p style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 1.25rem;">
+      Subscribe an external HTTP endpoint to event lifecycle events. Payloads are signed with HMAC-SHA256.
+    </p>
+
+    <form method="POST" action="/events/{{ event.slug }}/webhooks">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" for="url">Target Endpoint URL</label>
+        <input class="form-input" type="url" id="url" name="url" required placeholder="https://api.example.com/chameleon-webhook">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label" for="secret">HMAC Signing Secret (Optional)</label>
+        <input class="form-input" type="text" id="secret" name="secret" placeholder="Leave blank to auto-generate secure secret" style="font-family: var(--font-mono); font-size: 0.85rem;">
+      </div>
+
+      <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.75rem; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+        <strong>Supported Events:</strong><br>
+        <code>event.created</code>, <code>event.updated</code>, <code>project.submitted</code>, <code>judge.assigned</code>, <code>judge.score.submitted</code>, <code>vote.created</code>, <code>comment.created</code>, <code>voting.closed</code>, <code>results.published</code>, <code>certificate.issued</code>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.65rem;">
+        + Subscribe Webhook
+      </button>
+    </form>
+  </div>
+
+  <!-- Right: Registered Webhooks List -->
+  <div class="card" style="padding: 1.5rem;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Active Subscriptions</h2>
+    <p style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 1.25rem;">
+      Configured webhook listeners receiving real-time signed HTTP POST notifications.
+    </p>
+
+    {% if endpoints %}
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for ep in endpoints %}
+        <div style="background-color: var(--bg-surface-elevated); border: var(--border-width, 1px) solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <div style="word-break: break-all; max-width: 80%;">
+              <strong style="color: var(--text-primary); font-size: 0.9rem;">{{ ep.url }}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem;">
+                secret: <code>{{ ep.secret[:8] }}...{{ ep.secret[-4:] }}</code>
+              </div>
+            </div>
+            <span class="pill {% if ep.active %}pill-submitted{% else %}pill-draft{% endif %}" style="font-size: 0.7rem;">
+              {{ "ACTIVE" if ep.active else "PAUSED" }}
+            </span>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.75rem; border-top: 1px solid var(--border-subtle); padding-top: 0.5rem;">
+            <form method="POST" action="/events/{{ event.slug }}/webhooks/{{ ep.id }}/delete" style="margin: 0;">
+              <button type="submit" class="btn btn-secondary" style="padding: 0.25rem 0.65rem; font-size: 0.75rem; color: var(--rose);" onclick="return confirm('Delete this webhook endpoint?')">
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state" style="padding: 2.5rem 1rem;">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📡</div>
+        <div style="font-weight: 600;">No webhooks registered</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">
+          Register an endpoint to receive real-time webhook dispatches.
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Recent Webhook Deliveries Table -->
+<div class="card" style="padding: 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <div>
+      <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0;">Recent Delivery Logs</h2>
+      <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.2rem;">
+        Audit trail of webhook dispatches and target server responses.
+      </p>
+    </div>
+    <span class="role-badge role-organizer">Delivery Audit</span>
+  </div>
+
+  {% if deliveries %}
+  <div class="table-card" style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; font-family: var(--font-mono);">
+      <thead>
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
+          <th style="padding: 0.65rem 0.85rem;">Timestamp (UTC)</th>
+          <th style="padding: 0.65rem 0.85rem;">Event Type</th>
+          <th style="padding: 0.65rem 0.85rem;">Status</th>
+          <th style="padding: 0.65rem 0.85rem;">Response / Error</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in deliveries %}
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle);">
+          <td style="padding: 0.65rem 0.85rem; color: var(--text-muted);">
+            {{ d.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+          </td>
+          <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: var(--accent-primary);">
+            {{ d.event_type }}
+          </td>
+          <td style="padding: 0.65rem 0.85rem;">
+            {% if d.success %}
+              <span class="pill pill-submitted" style="font-size: 0.7rem;">HTTP {{ d.status_code }}</span>
+            {% else %}
+              <span class="pill pill-draft" style="font-size: 0.7rem; color: var(--rose); border-color: var(--rose);">
+                {{ "HTTP " ~ d.status_code if d.status_code else "FAILED" }}
+              </span>
+            {% endif %}
+          </td>
+          <td style="padding: 0.65rem 0.85rem; color: var(--text-secondary); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            {{ d.response_body or "-" }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+    No webhook deliveries recorded yet.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
