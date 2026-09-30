@@ -12,7 +12,7 @@ offline_mode = true
 [claims]
 tier_1 = true
 tier_2 = true
-tier_3 = false
+tier_3 = true
 tier_4 = false
 normalization_proof_bonus = true
 product_innovation = "Adaptive Visual System (6 Archetypes & Magic Morph)"

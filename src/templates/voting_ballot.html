@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Ballot &bull; {{ campaign.title }} &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+        <h1 class="page-title" style="margin-bottom: 0;">{{ campaign.title }}</h1>
+        {% if campaign.status == 'active' %}
+          <span class="pill pill-submitted">● Voting Open</span>
+        {% elif campaign.status == 'closed' %}
+          <span class="pill pill-track">🔒 Voting Closed</span>
+        {% else %}
+          <span class="pill pill-draft">⏱ Draft Stage</span>
+        {% endif %}
+      </div>
+      <p class="page-subtitle">
+        {{ campaign.description or "Cast your community ballot for your favorite hackathon project." }}
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/gallery" class="btn btn-secondary">
+        &larr; Gallery
+      </a>
+      {% if user and user.role in ['organizer', 'admin'] %}
+      <a href="/events/{{ campaign.event.slug }}/voting" class="btn btn-secondary">
+        ⚙️ Organizer Console
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Alerts / Notifications -->
+{% if success %}
+<div class="alert-banner alert-success" style="margin-bottom: 1.5rem;">
+  <span>✓</span>
+  <div><strong>Success:</strong> {{ success }}</div>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="alert-banner alert-danger" style="margin-bottom: 1.5rem;">
+  <span>⚠️</span>
+  <div><strong>Notice:</strong> {{ error }}</div>
+</div>
+{% endif %}
+
+<!-- Ballot Status & Policy Indicator Bar -->
+<div class="card" style="margin-bottom: 2rem; padding: 1.25rem 1.5rem; background: var(--bg-surface-elevated);">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="font-size: 0.75rem; text-transform: uppercase; font-family: var(--font-mono); color: var(--text-muted);">
+        Ballot Configuration & Result Secrecy
+      </div>
+      <div style="font-size: 0.92rem; font-weight: 600; color: var(--text-primary); margin-top: 0.2rem;">
+        Access: <strong>{{ campaign.access_mode|upper }}</strong> &bull; Method: <strong>{{ campaign.voting_method|title }} Vote</strong> &bull; Ordering: <strong>Deterministic Randomized</strong>
+      </div>
+    </div>
+
+    <div>
+      {% if results_sealed %}
+        <span class="pill pill-draft" title="Results remain hidden from visitors, participants, and judges while voting is underway.">
+          🔒 Results Hidden (Voting In Progress)
+        </span>
+      {% elif results_data %}
+        <span class="pill pill-submitted">
+          🏆 Results Published
+        </span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Offline Email Verification Box (For Email-Gated Campaigns) -->
+{% if campaign.access_mode == 'email' and campaign.status == 'active' %}
+<div class="card" style="margin-bottom: 2rem; padding: 1.5rem; border: 1px dashed var(--accent-primary);">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+    <div>
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">📧 Email-Gated Verification (Offline-Ready)</h2>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">
+        This campaign requires offline email verification. Enter your email to receive an instant verification code.
+      </p>
+    </div>
+    <span class="role-badge role-participant">Offline Verification</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+    <!-- Step 1: Request Code -->
+    <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="font-weight: 600; font-size: 0.88rem; margin-bottom: 0.5rem;">1. Request Verification Code</div>
+      <div style="display: flex; gap: 0.5rem;">
+        <input type="email" id="email-request-input" class="form-input" placeholder="voter@example.com" style="font-size: 0.85rem;">
+        <button type="button" class="btn btn-primary" onclick="requestEmailCode()" style="white-space: nowrap; font-size: 0.82rem;">
+          Get Code
+        </button>
+      </div>
+      <div id="email-request-status" style="font-size: 0.78rem; margin-top: 0.5rem; color: var(--text-muted); font-family: var(--font-mono);"></div>
+    </div>
+
+    <!-- Step 2: Confirm Code -->
+    <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="font-weight: 600; font-size: 0.88rem; margin-bottom: 0.5rem;">2. Enter 6-Digit Code</div>
+      <div style="display: flex; gap: 0.5rem;">
+        <input type="text" id="email-confirm-code" class="form-input" placeholder="e.g. 123456" style="font-size: 0.85rem; font-family: var(--font-mono); text-align: center; max-width: 140px;">
+        <button type="button" class="btn btn-secondary" onclick="confirmEmailCode()" style="white-space: nowrap; font-size: 0.82rem;">
+          Verify & Unlock
+        </button>
+      </div>
+      <div id="email-confirm-status" style="font-size: 0.78rem; margin-top: 0.5rem; color: var(--text-muted); font-family: var(--font-mono);"></div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Ballot Projects Grid (Deterministic Server-Randomized Order) -->
+<div style="margin-bottom: 3rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+    <div>
+      <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">Official Ballot Projects</h2>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem;">
+        Projects appear in a randomized order calibrated to your ballot session. Refreshing preserves order.
+      </p>
+    </div>
+    <div style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--font-mono);">
+      Total Eligible: <strong>{{ projects|length }}</strong>
+    </div>
+  </div>
+
+  {% if projects %}
+  <div class="bento-grid">
+    {% for p in projects %}
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; {% if p.has_voted %}border-color: var(--accent-primary); box-shadow: 0 0 0 1px var(--accent-primary);{% endif %}">
+      <div>
+        <div class="card-header">
+          <h3 class="card-title" style="font-size: 1.15rem;">
+            <a href="/projects/{{ p.project_id }}" style="color: var(--text-primary); text-decoration: none;">
+              {{ p.title }}
+            </a>
+          </h3>
+          {% if p.has_voted %}
+            <span class="pill pill-submitted">✓ Voted</span>
+          {% endif %}
+        </div>
+
+        {% if p.tagline %}
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            {{ p.tagline }}
+          </p>
+        {% endif %}
+
+        <div style="display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          {% if p.track_title %}
+            <span class="pill pill-track">{{ p.track_title }}</span>
+          {% endif %}
+          <span class="pill">Team: {{ p.team_name }}</span>
+        </div>
+      </div>
+
+      <div>
+        <!-- Deliverables Links -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          {% if p.demo_url %}
+            <a href="{{ p.demo_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
+              Demo &nearr;
+            </a>
+          {% endif %}
+          {% if p.repository_url %}
+            <a href="{{ p.repository_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
+              Repo &nearr;
+            </a>
+          {% endif %}
+          <a href="/projects/{{ p.project_id }}" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
+            View Details &rarr;
+          </a>
+        </div>
+
+        <!-- Voting Action -->
+        <div style="border-top: var(--border-width, 1px) solid var(--border-subtle); padding-top: 0.85rem;">
+          {% if campaign.status == 'active' %}
+            {% if p.has_voted %}
+              <button type="button" class="btn btn-secondary btn-disabled" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;" disabled>
+                ✓ Ballot Cast for this Project
+              </button>
+            {% else %}
+              <form method="POST" action="/voting/campaigns/{{ campaign.id }}/vote" style="margin: 0;">
+                <input type="hidden" name="project_id" value="{{ p.project_id }}">
+                <input type="hidden" name="voter_key" value="{{ voter_key or '' }}">
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                  🗳️ Vote for {{ p.title }}
+                </button>
+              </form>
+            {% endif %}
+          {% else %}
+            <button type="button" class="btn btn-secondary btn-disabled" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;" disabled>
+              Voting is Closed
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📋</div>
+    <h2 class="empty-state-title">No Submitted Projects Available</h2>
+    <p class="empty-state-desc">Projects will appear on this ballot once submitted to the event gallery.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Published Results Leaderboard (Visible when published or organizer) -->
+{% if results_data and results_data.results %}
+<div class="card" style="padding: 1.5rem; margin-top: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">Community Choice Results</h2>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem;">
+        Final tallied results across {{ results_data.total_votes }} votes cast by {{ results_data.total_unique_voters }} voters.
+      </p>
+    </div>
+    <span class="role-badge role-organizer">Official Tally</span>
+  </div>
+
+  <div class="table-card" style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+      <thead>
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
+          <th style="padding: 0.75rem 1rem; width: 80px; text-align: center;">Rank</th>
+          <th style="padding: 0.75rem 1rem;">Project Title</th>
+          <th style="padding: 0.75rem 1rem;">Team</th>
+          <th style="padding: 0.75rem 1rem; text-align: right; width: 100px;">Votes</th>
+          <th style="padding: 0.75rem 1rem; width: 180px;">Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results_data.results %}
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle);">
+          <td style="padding: 0.75rem 1rem; text-align: center; font-weight: 700; font-family: var(--font-mono);">
+            {% if r.rank == 1 %}🥇 1st{% elif r.rank == 2 %}🥈 2nd{% elif r.rank == 3 %}🥉 3rd{% else %}#{{ r.rank }}{% endif %}
+          </td>
+          <td style="padding: 0.75rem 1rem; font-weight: 600;">
+            <a href="/projects/{{ r.project_id }}" style="color: var(--text-primary); text-decoration: none;">
+              {{ r.project_title }}
+            </a>
+          </td>
+          <td style="padding: 0.75rem 1rem; color: var(--text-secondary);">
+            {{ r.team_name }}
+          </td>
+          <td style="padding: 0.75rem 1rem; text-align: right; font-family: var(--font-mono); font-weight: 700; color: var(--accent-primary);">
+            {{ r.votes_count }}
+          </td>
+          <td style="padding: 0.75rem 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <div style="flex: 1; height: 6px; background-color: var(--bg-canvas); border-radius: var(--radius-full); overflow: hidden; border: 1px solid var(--border-subtle);">
+                <div style="width: {{ r.percentage }}%; height: 100%; background-color: var(--accent-primary);"></div>
+              </div>
+              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); width: 42px; text-align: right;">{{ r.percentage }}%</span>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  let cachedEmail = '';
+  let cachedToken = '';
+
+  async function requestEmailCode() {
+    const email = document.getElementById('email-request-input').value.trim();
+    const statusEl = document.getElementById('email-request-status');
+    if (!email) {
+      statusEl.textContent = 'Please enter an email address.';
+      statusEl.style.color = 'var(--rose)';
+      return;
+    }
+    statusEl.textContent = 'Generating offline verification code...';
+    try {
+      const res = await fetch('/api/v1/voting/campaigns/{{ campaign.id }}/request-email-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        cachedEmail = data.email;
+        cachedToken = data.token;
+        statusEl.innerHTML = `<span style="color: var(--emerald);">✓ Code generated!</span> Use code: <strong style="font-size: 0.95rem; color: var(--accent-primary);">${data.verification_code}</strong>`;
+        document.getElementById('email-confirm-code').value = data.verification_code;
+      } else {
+        statusEl.textContent = data.detail || 'Error generating token.';
+        statusEl.style.color = 'var(--rose)';
+      }
+    } catch (e) {
+      statusEl.textContent = 'Network or request error.';
+      statusEl.style.color = 'var(--rose)';
+    }
+  }
+
+  async function confirmEmailCode() {
+    const code = document.getElementById('email-confirm-code').value.trim();
+    const statusEl = document.getElementById('email-confirm-status');
+    if (!code) {
+      statusEl.textContent = 'Please enter verification code.';
+      statusEl.style.color = 'var(--rose)';
+      return;
+    }
+    try {
+      const res = await fetch('/api/v1/voting/campaigns/{{ campaign.id }}/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cachedEmail, code: code, token: cachedToken })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        statusEl.innerHTML = `<span style="color: var(--emerald);">✓ Verified!</span> Ballot unlocked.`;
+        setTimeout(() => window.location.reload(), 800);
+      } else {
+        statusEl.textContent = data.detail || 'Invalid verification code.';
+        statusEl.style.color = 'var(--rose)';
+      }
+    } catch (e) {
+      statusEl.textContent = 'Error verifying code.';
+      statusEl.style.color = 'var(--rose)';
+    }
+  }
+</script>
+{% endblock %}

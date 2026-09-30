@@ -63,7 +63,11 @@
   <div class="card">
     <div>
       <div class="card-header">
-        <h3 class="card-title">{{ project.title }}</h3>
+        <h3 class="card-title">
+          <a href="/projects/{{ project.id }}" style="color: var(--text-primary); text-decoration: none;">
+            {{ project.title }}
+          </a>
+        </h3>
         {% if project.track %}
           <span class="pill pill-track">{{ project.track.title }}</span>
         {% endif %}
@@ -97,6 +101,9 @@
             Video &nearr;
           </a>
         {% endif %}
+        <a href="/projects/{{ project.id }}" class="btn btn-secondary" style="padding: 0.25rem 0.65rem; font-size: 0.78rem;">
+          View & Vote &rarr;
+        </a>
       </div>
 
       <div class="card-meta">

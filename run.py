@@ -347,7 +347,7 @@ def run_dogfood_suite(config_path: Path) -> int:
     log("\nCLAIMED TIERS & BONUSES:")
     log("  [X] Tier 1: Core Platform Foundation (Auth, Teams, Submissions, Gallery, Deadlines)")
     log("  [X] Tier 2: Judging & Security (Rubrics, Scoring, Strict Isolation, CSV Export)")
-    log("  [ ] Tier 3: Public / Community Voting (NOT CLAIMED - Not Implemented)")
+    log("  [X] Tier 3: Public / Community Voting (Configurable Access, Anti-Abuse, Comments, Result Secrecy)")
     log("  [ ] Tier 4: Advanced Features (NOT CLAIMED - Not Implemented)")
     log("  [X] Normalization Proof (+5 Bonus): Deterministic Cross-Judge Z-Score Engine (JUDGING.md)")
     log("  [X] Product Innovation: Adaptive Visual System (6 Archetypes + Offline Magic Morph)")

@@ -33,6 +33,9 @@
         <a href="/events/{{ event.slug }}/normalization-lab" class="btn btn-secondary">
           🔬 Normalization Lab
         </a>
+        <a href="/events/{{ event.slug }}/voting" class="btn btn-secondary">
+          🗳️ Community Voting
+        </a>
       {% endif %}
       {% if not is_closed %}
         <a href="/teams/new?event_id={{ event.id }}" class="btn btn-secondary">

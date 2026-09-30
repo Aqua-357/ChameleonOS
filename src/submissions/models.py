@@ -118,6 +118,8 @@ class Project(Base):
     track = relationship("Track", back_populates="projects")
     judge_assignments = relationship("JudgeAssignment", back_populates="project", cascade="all, delete-orphan")
     judge_scores = relationship("JudgeScore", back_populates="project", cascade="all, delete-orphan")
+    votes = relationship("Vote", back_populates="project", cascade="all, delete-orphan")
+    comments = relationship("ProjectComment", back_populates="project", cascade="all, delete-orphan", order_by="ProjectComment.created_at.desc()")
 
     def __repr__(self) -> str:
         return f"<Project id={self.id} title={self.title} is_submitted={self.is_submitted}>"

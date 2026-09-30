@@ -7,14 +7,14 @@
 
 ## 🌟 Overview
 
-ChameleonOS implements **T1 and T2, plus the Normalization Proof bonus and an adaptive visual/theming system.**
+ChameleonOS implements **T1, T2, and T3, plus the Normalization Proof bonus and an adaptive visual/theming system.**
 
-The platform is designed for zero-trust hackathon administration, team project submissions, secure multi-judge evaluations with deterministic score normalization, and dynamic styling powered by an offline token engine.
+The platform is designed for zero-trust hackathon administration, team project submissions, secure multi-judge evaluations with deterministic score normalization, community choice voting with anti-abuse, and dynamic styling powered by an offline token engine.
 
 ### Platform Capabilities & Claimed Tiers
 - **Tier 1 (Core Platform):** Complete role-based authentication, configurable events, tracks, prizes, teams, invite tokens, project drafting, public gallery with unauthenticated search/filter, and strict deadline enforcement.
 - **Tier 2 (Judging & Security):** Weighted rubrics, judge assignment queue, score submissions, strict judge isolation (no peer score leakage), organizer aggregate results, and RFC 4180 CSV export.
-- **Tier 3 (Public / Community Voting):** *Not implemented / Not claimed.*
+- **Tier 3 (Public / Community Voting & Comments):** Configurable community voting campaigns (open link, email-gated with offline OTP, authenticated), project comments with organizer moderation, server-side anti-abuse (sliding-window rate limiting, duplicate ballot rejection), tamper-evident audit logging, deterministic randomized ballot ordering (server-derived seed), and strict result secrecy during active voting.
 - **Tier 4 (Advanced Features):** *Not implemented / Not claimed.*
 - **Normalization Proof (+5 Bonus):** Deterministic cross-judge Z-score normalization with benchmark rescaling, handling harsh/lenient graders, zero-variance evaluations, missing criteria, and unequal judge distributions (fully documented in [`JUDGING.md`](JUDGING.md)).
 - **Product Innovation:** Adaptive Visual System featuring 6 design archetypes (`verdant`, `cosmos`, `arcade`, `monolith`, `bio`, `atelier`) and deterministic offline **Magic Morph**.

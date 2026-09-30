@@ -43,6 +43,7 @@ class Event(Base):
     projects = relationship("Project", back_populates="event", cascade="all, delete-orphan")
     rubrics = relationship("Rubric", back_populates="event", cascade="all, delete-orphan")
     judge_assignments = relationship("JudgeAssignment", back_populates="event", cascade="all, delete-orphan")
+    voting_campaigns = relationship("VotingCampaign", back_populates="event", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Event id={self.id} title={self.title} phase={self.phase}>"

@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Community Voting Management &bull; {{ event.title }} &bull; ChameleonOS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+        <h1 class="page-title" style="margin-bottom: 0;">Community Voting Console</h1>
+        <span class="role-badge role-organizer">Organizer Access</span>
+      </div>
+      <p class="page-subtitle">{{ event.title }} &bull; Anti-Abuse Controls & Live Ballot Auditing</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="/events/{{ event.slug }}" class="btn btn-secondary">
+        &larr; Back to Event
+      </a>
+      <a href="/events/{{ event.slug }}/results" class="btn btn-secondary">
+        🏆 Judge Results
+      </a>
+      {% if active_campaign %}
+      <a href="/voting/campaigns/{{ active_campaign.id }}/ballot" target="_blank" class="btn btn-primary">
+        🗳️ Public Ballot View &nearr;
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if error %}
+<div class="alert-banner alert-danger" style="margin-bottom: 1.5rem;">
+  <span>⚠️</span>
+  <div><strong>Error:</strong> {{ error }}</div>
+</div>
+{% endif %}
+
+<!-- Campaign Management & Creation Split Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+  
+  <!-- Left: Create New Campaign -->
+  <div class="card" style="padding: 1.5rem;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Configure Voting Campaign</h2>
+    <p style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 1.25rem;">
+      Set up community choice awards with anti-abuse controls, access modes, and result visibility policies.
+    </p>
+
+    <form method="POST" action="/events/{{ event.slug }}/voting/campaigns">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" for="title">Campaign Title</label>
+        <input class="form-input" type="text" id="title" name="title" required value="Community Choice Awards 2026">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" for="description">Purpose / Description</label>
+        <textarea class="form-textarea" id="description" name="description" rows="2" placeholder="Public audience award for most innovative hackathon submission..."></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="access_mode">Access Mode</label>
+          <select class="form-input" id="access_mode" name="access_mode">
+            <option value="open">Open Link (Public)</option>
+            <option value="email">Email-Gated (Offline OTP)</option>
+            <option value="authenticated">Authenticated Account</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="voting_method">Ballot Method</label>
+          <select class="form-input" id="voting_method" name="voting_method">
+            <option value="single">Single Vote (1 Project)</option>
+            <option value="approval">Approval (Upvote Multiple)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label" for="results_visibility">Results Policy</label>
+        <select class="form-input" id="results_visibility" name="results_visibility">
+          <option value="public_after_close">Public After Voting Closes</option>
+          <option value="organizers_only">Organizers Only (Sealed)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.65rem;">
+        + Create Campaign
+      </button>
+    </form>
+  </div>
+
+  <!-- Right: Existing Campaigns List -->
+  <div class="card" style="padding: 1.5rem;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Configured Campaigns</h2>
+    <p style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 1.25rem;">
+      Manage campaign lifecycle states (Draft &rarr; Active &rarr; Closed).
+    </p>
+
+    {% if campaigns %}
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for c in campaigns %}
+        <div style="background-color: var(--bg-surface-elevated); border: var(--border-width, 1px) solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <div>
+              <div style="font-weight: 700; color: var(--text-primary); font-size: 1rem;">{{ c.title }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.15rem;">
+                mode: {{ c.access_mode }} &bull; method: {{ c.voting_method }}
+              </div>
+            </div>
+            <span class="pill {% if c.status == 'active' %}pill-submitted{% elif c.status == 'closed' %}pill-track{% else %}pill-draft{% endif %}">
+              {{ c.status|upper }}
+            </span>
+          </div>
+
+          <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+            Total Votes Cast: <strong>{{ c.votes|length }}</strong> &bull; Policy: {{ c.results_visibility }}
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            {% if c.status == 'draft' %}
+              <form method="POST" action="/events/{{ event.slug }}/voting/campaigns/{{ c.id }}/activate" style="margin: 0;">
+                <button type="submit" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+                  ▶ Start Voting
+                </button>
+              </form>
+            {% elif c.status == 'active' %}
+              <form method="POST" action="/events/{{ event.slug }}/voting/campaigns/{{ c.id }}/close" style="margin: 0;">
+                <button type="submit" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; color: var(--rose);">
+                  ⏹ Close Voting
+                </button>
+              </form>
+            {% endif %}
+            <a href="/voting/campaigns/{{ c.id }}/ballot" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+              Ballot View &nearr;
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state" style="padding: 2.5rem 1rem;">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🗳️</div>
+        <div style="font-weight: 600;">No campaigns configured</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">
+          Create a campaign using the form on the left to enable community voting.
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Organizer Live Results Preview (Confidential during active voting) -->
+{% if results_data and results_data.results %}
+<div class="card" style="margin-bottom: 2rem; padding: 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <h2 style="font-size: 1.2rem; font-weight: 700; margin: 0;">Live Vote Tally (Organizer Preview)</h2>
+        {% if results_data.status == 'active' %}
+          <span class="role-badge role-organizer">🔒 Sealed from Public</span>
+        {% else %}
+          <span class="pill pill-submitted">Published</span>
+        {% endif %}
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.25rem;">
+        Campaign: <strong>{{ results_data.campaign_title }}</strong> &bull; Total Votes: <strong>{{ results_data.total_votes }}</strong> &bull; Unique Voters: <strong>{{ results_data.total_unique_voters }}</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="table-card" style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+      <thead>
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
+          <th style="padding: 0.75rem 1rem; width: 80px; text-align: center;">Rank</th>
+          <th style="padding: 0.75rem 1rem;">Project Title</th>
+          <th style="padding: 0.75rem 1rem;">Team</th>
+          <th style="padding: 0.75rem 1rem; text-align: right; width: 100px;">Votes</th>
+          <th style="padding: 0.75rem 1rem; width: 180px;">Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results_data.results %}
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle);">
+          <td style="padding: 0.75rem 1rem; text-align: center; font-weight: 700; font-family: var(--font-mono);">
+            {% if r.rank == 1 %}🥇 1st{% elif r.rank == 2 %}🥈 2nd{% elif r.rank == 3 %}🥉 3rd{% else %}#{{ r.rank }}{% endif %}
+          </td>
+          <td style="padding: 0.75rem 1rem; font-weight: 600;">
+            <a href="/projects/{{ r.project_id }}" style="color: var(--text-primary); text-decoration: none;">
+              {{ r.project_title }}
+            </a>
+          </td>
+          <td style="padding: 0.75rem 1rem; color: var(--text-secondary);">
+            {{ r.team_name }}
+          </td>
+          <td style="padding: 0.75rem 1rem; text-align: right; font-family: var(--font-mono); font-weight: 700; color: var(--accent-primary);">
+            {{ r.votes_count }}
+          </td>
+          <td style="padding: 0.75rem 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <div style="flex: 1; height: 6px; background-color: var(--bg-canvas); border-radius: var(--radius-full); overflow: hidden; border: 1px solid var(--border-subtle);">
+                <div style="width: {{ r.percentage }}%; height: 100%; background-color: var(--accent-primary);"></div>
+              </div>
+              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); width: 42px; text-align: right;">{{ r.percentage }}%</span>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Organizer Anti-Abuse & Vote Audit Trail -->
+<div class="card" style="padding: 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0;">Vote Anti-Abuse & Tamper-Evident Audit Trail</h2>
+      <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.2rem;">
+        Immutable event log recording accepted ballots, rate-limit triggers, and duplicate attempts.
+      </p>
+    </div>
+    <span class="role-badge role-organizer">Tamper-Evident Ledger</span>
+  </div>
+
+  {% if audit_logs %}
+  <div class="table-card" style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; font-family: var(--font-mono);">
+      <thead>
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle); background-color: var(--bg-surface-elevated); color: var(--text-secondary);">
+          <th style="padding: 0.65rem 0.85rem;">Timestamp (UTC)</th>
+          <th style="padding: 0.65rem 0.85rem;">Event Type</th>
+          <th style="padding: 0.65rem 0.85rem;">IP Address</th>
+          <th style="padding: 0.65rem 0.85rem;">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in audit_logs %}
+        <tr style="border-bottom: var(--border-width, 1px) solid var(--border-subtle);">
+          <td style="padding: 0.65rem 0.85rem; color: var(--text-muted);">
+            {{ a.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+          </td>
+          <td style="padding: 0.65rem 0.85rem;">
+            {% if a.event_type == 'VOTE_ACCEPTED' %}
+              <span class="pill pill-submitted" style="font-size: 0.72rem;">VOTE_ACCEPTED</span>
+            {% elif 'REJECTED' in a.event_type %}
+              <span class="pill pill-draft" style="font-size: 0.72rem; color: var(--rose); border-color: var(--rose);">{{ a.event_type }}</span>
+            {% elif a.event_type == 'VOTE_RATE_LIMITED' %}
+              <span class="pill pill-draft" style="font-size: 0.72rem; color: var(--amber); border-color: var(--amber);">RATE_LIMITED</span>
+            {% else %}
+              <span class="pill pill-track" style="font-size: 0.72rem;">{{ a.event_type }}</span>
+            {% endif %}
+          </td>
+          <td style="padding: 0.65rem 0.85rem; color: var(--text-secondary);">
+            {{ a.ip_address or '127.0.0.1' }}
+          </td>
+          <td style="padding: 0.65rem 0.85rem; color: var(--text-secondary);">
+            {% if a.payload %}
+              {% if a.payload.voter_key %}<span style="color: var(--accent-primary);">voter:</span> {{ a.payload.voter_key }} {% endif %}
+              {% if a.payload.project_id %}<span style="color: var(--text-muted);">proj:</span> {{ a.payload.project_id[:8] }}... {% endif %}
+              {% if a.payload.reason %}<span style="color: var(--rose);">reason:</span> {{ a.payload.reason }} {% endif %}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+    No voting audit events logged yet.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
